@@ -1,7 +1,21 @@
 (function () {
 
+    var TAU = Math.PI * 2;
+
     function Rotor() {
         this.el = document.createElement('div');
+
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(function (letter, i, list) {
+            var angle = TAU / list.length * i;
+            var radius = 15;
+            var x = Math.cos(angle) * radius;
+            var y = Math.sin(angle) * radius;
+
+            var position = document.createElement('div');
+            position.classList.add('rotor-position');
+            position.style.WebkitTransform = 'translate(' + x + 'px,' + y + 'px)';
+            this.el.appendChild(position);
+        }, this);
     }
 
     Rotor.prototype = {
@@ -26,8 +40,13 @@
     }
 
     function Plugboard() {
-
+        this.from = "QVUBZNPREGYALSMCODJHKWITFX";
+        this.to = "MNCDEXSARHGILPTYJWKQUOBFZV";
     }
+
+    Plugboard.prototype.transform = function (letter) {
+        return this.to.charAt(this.from.indexOf(letter));
+    };
 
     function Lightboard() {
         this.el = document.createElement('div');
@@ -66,8 +85,8 @@
         this.outputKeys = new Lightboard();
         this.el.querySelector('.output-lightboard').appendChild(this.outputKeys.render().el);
 
-        var encrypt = this.getElementById('encrypt');
-        var decrypt = this.getElementById('decrypt');
+        var encrypt = document.getElementById('encrypt');
+        var decrypt = document.getElementById('decrypt');
     }
 
     var enigma = new Enigma({
