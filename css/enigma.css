@@ -1,0 +1,33 @@
+body {margin: 0; padding: 0;}
+* {box-sizing: border-box;}
+.rotors-container {
+  background: red;
+}
+
+.rotor {
+  background: blue;
+  width: 160px;
+  height: 160px;
+  display: inline-block;
+}
+
+.rotor-letters {
+  -moz-transform: translate(80px, 80px);
+}
+
+.rotor-position-inner, .rotor-position-outer {
+  text-align: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
+  position: absolute;
+  background: red;
+  font-size: 10px;
+  color: white;
+  font-family: sans-serif;
+}
+
+.lightboard {
+  background: green;
+  height: 50px;
+}

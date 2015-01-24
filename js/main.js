@@ -1,26 +1,49 @@
 (function () {
 
-    var TAU = Math.PI * 2;
+    // computerphile video on enigma
+    // https://www.youtube.com/watch?v=d2NWPG2gB_A
 
-    function Rotor() {
+    var TAU = Math.PI * 2;
+    var HALF_PI = Math.PI / 2;
+
+    function Rotor(type) {
         this.el = document.createElement('div');
+        this.el.insertAdjacentHTML('beforeend', this.template);
+        this.transpose = this.variants[type]; // what the rotor will be encoded to
 
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').forEach(function (letter, i, list) {
             var angle = TAU / list.length * i;
-            var radius = 15;
-            var x = Math.cos(angle) * radius;
-            var y = Math.sin(angle) * radius;
+            var innerRadius = 55;
+            var outerRadius = 70;
+            var innerX = Math.cos(angle) * innerRadius;
+            var innerY = Math.sin(angle) * innerRadius;
+            var outerX = Math.cos(angle) * outerRadius;
+            var outerY = Math.sin(angle) * outerRadius;
 
-            var position = document.createElement('div');
-            position.classList.add('rotor-position');
-            position.style.WebkitTransform = 'translate(' + x + 'px,' + y + 'px)';
-            this.el.appendChild(position);
+            // create the inner (ordered) ring of letters
+            var inner = document.createElement('div');
+            inner.classList.add('rotor-position-inner');
+            inner.textContent = letter.toUpperCase();
+            var transformString = 'translate(' + innerX + 'px,' + innerY + 'px) rotate(' + (angle + HALF_PI) + 'rad)';
+            inner.style.WebkitTransform = inner.style.MozTransform = inner.style.msTransform = transformString;
+            this.el.querySelector('.rotor-letters').appendChild(inner);
+
+            // create the outer (jumbled) letters
+            var outer = document.createElement('div');
+            outer.classList.add('rotor-position-outer');
+            outer.textContent = this.transpose.charAt(i);
+            transformString = 'translate(' + outerX + 'px,' + outerY + 'px) rotate(' + (angle + HALF_PI) + 'rad)';
+            outer.style.WebkitTransform = outer.style.MozTransform = outer.style.msTransform = transformString;
+            this.el.querySelector('.rotor-letters').appendChild(outer);
         }, this);
     }
 
     Rotor.prototype = {
-        template: '<div class="rotor-inner"></div>',
+        template: '<div class="rotor-letters"></div>',
         range: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+        // corresponds to army and airforce Enigmas
+        // the movie wasn't accurate, so we won't strictly be either.
+        variants: ["EMFITSDJVQALOWBGRXHKCPZUNY", "RUHTNVQLIGAPZXEMFJSWCODYKB", "OGSRKCANXUMJWLPQHEBTVYZDFI"],
         render: function () {
             this.el.classList.add('rotor');
             this.el.insertAdjacentHTML('beforeend', this.template);
@@ -40,7 +63,7 @@
     }
 
     function Plugboard() {
-        this.from = "QVUBZNPREGYALSMCODJHKWITFX";
+        this.from = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         this.to = "MNCDEXSARHGILPTYJWKQUOBFZV";
     }
 
@@ -75,7 +98,7 @@
 
         this.rotors = [];
         for (var i = 0; i < 3; i++) {
-            var rotor = new Rotor();
+            var rotor = new Rotor(i);
             this.rotors.push(rotor);
             this.el.querySelector('.rotors-container').appendChild(rotor.render().el);
         }
