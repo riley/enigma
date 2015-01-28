@@ -35,6 +35,11 @@ body {margin: 0; padding: 0;}
   border: 1px solid yellow;
 }
 
+.plugboard ul {
+  margin: 0;
+  padding: 0;
+}
+
 .plugboard-label {
   text-transform: uppercase;
   text-align: center;
@@ -43,15 +48,25 @@ body {margin: 0; padding: 0;}
 }
 
 .plugboard-letter {
-  position: absolute;
+  display: inline-block;
+  width: 3.846%; /* 1/26th of 100% */
+  text-align: center;
+}
+
+.plugboard-letter span {
+  display: block;
   width: 25px;
   height: 25px;
   border-radius: 12.5px;
-  color: white;
-  background: lightblue;
-  text-align: center;
   font-weight: bold;
   padding-top: 3px;
+  margin: 0 auto;
+  color: white;
+  background: lightslategray;
+}
+
+.plugboard-letter.active span {
+  background: #8470FF;
 }
 
 .rotors-container {
@@ -75,58 +90,48 @@ body {margin: 0; padding: 0;}
 
 .rotor-position {
   text-align: center;
-  width: 12px;
-  height: 12px;
-  border-radius: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
   position: absolute;
   font-size: 10px;
   color: white;
   background: navy;
-  margin: -6px; /* this is the important line. must be half of width and height */
-}
-
-.starting-position {
-  width: 160px;
-  height: 160px;
-  position: absolute;
-  font-size: 70px;
-  background: rgba(255, 0, 0, .4);
-  margin: 0;
-  padding: 34px 0;
-  text-align: center;
-}
-
-.reflector {
-  float: left;
-  border: 1px solid purple;
-  height: 160px;
-  width: 160px;
+  margin: -8px; /* this is the important line. must be half of width and height */
+  padding-top: 2px;
 }
 
 .lightboard {
-  border: 1px solid green;
+  background: rgba(0, 255, 0, .1);
   height: 145px;
-}
-
-.lightboard :first-child {
-  margin: 0;
-  padding: 10px;
 }
 
 .lightboard-letter {
   display: block;
   cursor: default;
-  position: absolute;
   text-align: center;
   color: white;
-  background: #594D59;
-  width: 20px;
-  height: 20px;
-  border-radius: 10px;
+  float: left;
 }
 
-.lightboard-letter:active {
-  background: #5F2C5F;
+.lightboard-letter span {
+  background: lightsalmon;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  padding-top: 5px;
+  display: block;
+  border-radius: 20px;
+  font-size: 26px;
+}
+
+.lightboard-letter.active span {
+  background: #8B5742;
+}
+
+.lightboard-label {
+  margin: 0;
+  padding: 0;
 }
 
 #circuits {
@@ -138,4 +143,25 @@ body {margin: 0; padding: 0;}
 #encrypt {
   font-size: 20px;
   padding: 4px;
+}
+
+#encoded-message {
+  border: 1px solid orange;
+}
+
+.output-message {
+  font-size: 20px;
+}
+
+/* some SVG classes */
+.line-group, .glyph-group {
+  transition: transform .3s;
+}
+
+circle.rotor-letter-bkd {
+  fill: cornflowerblue;
+}
+
+circle.rotor-letter-bkd.input {
+
 }
