@@ -189,7 +189,7 @@
             console.log('\n');
             var secondRotorReverse = this.rotors[1].encode(thirdRotorReverse, 'reverse');
             console.log('\n');
-            var firstRotorReverse = this.rotors[2].encode(secondRotorReverse, 'reverse');
+            var firstRotorReverse = this.rotors[0].encode(secondRotorReverse, 'reverse');
             console.log('\n');
             var plugboardSecondResult = this.plugboard.stecker(this.range[firstRotorReverse]);
 
