@@ -1,7 +1,7 @@
 function Reflector(el) {
     this.el = el;
-    this.from = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    this.to =   "EJMZALYXVBWFCRQUONTSPIKHGD";  // Reflector A from wikipedia
+    this.from = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+    this.to =   "EJMZALYXVBWFCRQUONTSPIKHGD".split('');  // Reflector A from wikipedia
 }
 
 Reflector.prototype = {
@@ -12,7 +12,7 @@ Reflector.prototype = {
 
         var gap = 11;
 
-        this.from.split('').map(function (letter, i) {
+        this.from.map(function (letter, i) {
             var circle = document.createElementNS(ns, 'circle');
             var x = i * gap;
             setAttrs(circle, {cx: x, cy: 0, r: 3, fill: 'white', stroke: 'cornflowerblue'});
@@ -30,7 +30,7 @@ Reflector.prototype = {
         var placedLetters = [];
 
         // draw lines showing how reflector is wired
-        this.from.split('').forEach(function (letter, i, list) {
+        this.from.forEach(function (letter, i, list) {
 
             if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.encode(letter)) > -1) return true;
 
@@ -44,7 +44,7 @@ Reflector.prototype = {
 
             lineGroup.appendChild(path);
 
-            placedLetters.push(letter, this.encode(letter));
+            placedLetters.push(letter, this.from[reflectedPosition]);
 
         }, this);
 
@@ -55,7 +55,7 @@ Reflector.prototype = {
 
         return this;
     },
-    encode: function (letter) {
-        return this.to.charAt(this.from.indexOf(letter));
+    encode: function (input) {
+        return this.to.indexOf(this.to[input]);
     }
 };

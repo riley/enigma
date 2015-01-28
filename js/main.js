@@ -177,12 +177,18 @@
             var thirdRotorForward = this.rotors[2].encode(secondRotorForward, 'forward');
             console.log('\n');
             var reflected = this.reflector.encode(thirdRotorForward);
+            console.log('\n');
+            console.log('reflected', reflected);
+            console.log('\n');
             var thirdRotorReverse = this.rotors[2].encode(reflected, 'reverse');
+            console.log('\n');
             var secondRotorReverse = this.rotors[1].encode(thirdRotorReverse, 'reverse');
+            console.log('\n');
             var firstRotorReverse = this.rotors[2].encode(secondRotorReverse, 'reverse');
+            console.log('\n');
             var plugboardSecondResult = this.plugboard.stecker(firstRotorReverse);
 
-            console.log('output', plugboardSecondResult);
+            console.log('\noutput', plugboardSecondResult);
         }
     };
 

@@ -187,14 +187,14 @@ Rotor.prototype = {
     },
     encode: function (input, direction) {
         console.log('input', input, direction, 'rotor', this.labelMap[this.type], 'this.offset', this.offset);
-        if (direction === 'forward') {
+        // if (direction === 'forward') {
             console.log('input + this.offset', input + this.offset, '(input + this.offset) % 26', (input + this.offset) % 26);
             var inPosition = (input + this.offset) % 26;
             console.log('inLetter', this.range[inPosition]);
             var outLetter = this.transpose[inPosition];
             var outPosition = this.range.indexOf(outLetter);
             console.log('outPosition before subtract', outPosition);
-            outPosition -= this.offset % 26;
+            outPosition -= this.offset;
 
             if (outPosition < 0) outPosition += 26;
 
@@ -205,8 +205,8 @@ Rotor.prototype = {
             this.inputOffset = input;
             this.outputOffset = outPosition;
             return this.outputOffset;
-        } else { // after being reflected
-            return this.range[this.transpose[input]];
-        }
+        // } else { // after being reflected
+        //     return this.range[this.transpose[input]];
+        // }
     }
 };
