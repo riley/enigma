@@ -51,7 +51,7 @@
 
     function Enigma(config) {
         this.el = config.el;
-        this.startingLetters = "FKD";
+        this.startingLetters = "MCK";
         this.keyIsDown = false;
 
         this.template =
@@ -107,6 +107,8 @@
         encrypt.addEventListener('keyup', this.handleKeyUp.bind(this), false);
 
         this.circuit = new Circuit(document.getElementById('circuits')).render();
+
+        TWC.dispatch.on('encoded', this.showLetterz.bind(this));
     }
 
     Enigma.prototype = {
@@ -158,6 +160,9 @@
 
                 this.encode(e.key.toUpperCase());
             }
+        },
+        showLetterz: function (e, letter) {
+            document.querySelector('.output-message').textContent += letter;
         },
         handleKeyUp: function (e) {
             this.keyIsDown = false;
