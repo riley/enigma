@@ -6,44 +6,81 @@ function Rotor(type, initialOffset) {
     this.notch = this.variants[type].notch;
     this.el = document.createElementNS(ns, 'g'); // rotorGroup
 
-    var offset = initialOffset;
+    console.log('new Rotor initialOffset', initialOffset);
 
-    // this.internalOffset = this.range.indexOf(initialOffset);
+    var offset = initialOffset;
+    var inputOffset;
+    var outputOffset;
+
     // this is so when a rotor makes a full turn, it doesn't animate all the way backwards
     // offset
+
+    TWC.dispatch.on('key_up', this.clearPositions.bind(this));
 
     Object.defineProperty(this, 'offset', {
         get: function () {
             return offset;
         },
         set: function (val) {
+
+            if (this.rendered) {
+                console.log('setting rotor offset', this.labelMap[this.type], 'to', val);
+            }
+
+            if (this.rendered && (val - 1) % 26 === this.range.indexOf(this.notch) && this.type !== 2) {
+                this.nextRotor.offset++;
+            }
             offset = val;
-            console.log('setter', this.el);
+
             var glyphGroup = this.el.querySelector('.glyph-group');
-            if (glyphGroup) {
+            if (this.rendered) {
                 var rot = 'transform: rotate(' + -offset * this.increment + 'deg)';
                 glyphGroup.setAttribute('style', rot);
                 this.el.querySelector('.line-group').setAttribute('style', rot);
+                this.el.querySelector('.starting-glyph').textContent = this.offset % 26;
             }
-            // internalOffset used for encoding
-            this.internalOffset = this.offset % 26;
         }
     });
 
-    this.offset = this.range.indexOf(initialOffset);
+    Object.defineProperty(this, 'inputOffset', {
+        get: function () {
+            return inputOffset;
+        },
+        set: function (val) {
+            inputOffset = val;
+            console.log('inputOffset', val, 'rotor', this.type, 'this.offset', this.offset);
+
+            this.el.querySelectorAll('.rotor-letter-bkd')[(val + this.offset) % 26].classList.add('input');
+        }
+    });
+
+    Object.defineProperty(this, 'outputOffset', {
+        get: function () {
+            return outputOffset;
+        },
+        set: function (val) {
+            outputOffset = val;
+            console.log('outputOffset', val);
+            this.el.querySelectorAll('.rotor-letter-bkd')[(val + this.offset) % 26].classList.add('output');
+        }
+    });
+
+    this.offset = initialOffset;
 }
 
 Rotor.prototype = {
+    labelMap: ['I', 'II', 'III'],
+    rendered: false,
     increment: 360 / 26,
-    range: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    range: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(''),
     // corresponds to army and airforce Enigmas
     // these are the I, II, and III rotors from a 1930 Enigma
     variants: {
-        '0': {wires: "EKMFLGDQVZNTOWYHXUSPAIBRCJ", notch: 'Q'}, // I
-        '1': {wires: "AJDKSIRUXBLHWTMCQGZNPYFVOE", notch: 'E'}, // II
-        '2': {wires: "BDFHJLCPRTXVZNYEIWGAKMUSQO", notch: 'V'}, // III
-        '3': {wires: "ESOVPZJAYQUIRHXLNFTGKDCMWB", notch: 'J'}, // IV
-        '4': {wires: "VZBRGITYUPSDNHLXAWMJQOFECK", notch: 'Z'} // V
+        '0': {wires: "EKMFLGDQVZNTOWYHXUSPAIBRCJ".split(''), notch: 'Q'}, // I
+        '1': {wires: "AJDKSIRUXBLHWTMCQGZNPYFVOE".split(''), notch: 'E'}, // II
+        '2': {wires: "BDFHJLCPRTXVZNYEIWGAKMUSQO".split(''), notch: 'V'}, // III
+        '3': {wires: "ESOVPZJAYQUIRHXLNFTGKDCMWB".split(''), notch: 'J'}, // IV
+        '4': {wires: "VZBRGITYUPSDNHLXAWMJQOFECK".split(''), notch: 'Z'} // V
     },
     render: function () {
         var svg = document.getElementById('rotors');
@@ -59,7 +96,7 @@ Rotor.prototype = {
         glyphGroup.classList.add('glyph-group');
         glyphGroup.setAttribute('style', 'transform: rotate(' + -this.offset * this.increment + 'deg)');
 
-        this.glyphPositions = this.range.split('').map(function (letter, i, list) {
+        this.glyphPositions = this.range.map(function (letter, i, list) {
             var angle = TAU / list.length * i;
             var radius = 70;
             var x = Math.cos(angle) * radius;
@@ -76,7 +113,8 @@ Rotor.prototype = {
 
             var text = document.createElementNS(ns, 'text');
             setAttrs(text, {x: 0, y: 0, 'text-anchor': 'middle', fill: 'white', 'font-size': 11, dy: 4});
-            text.textContent = letter;
+            // text.textContent = letter;
+            text.textContent = i;
             g.appendChild(text);
 
             if (letter === this.notch) { // add a marker of some kind to indicate notch position
@@ -91,28 +129,42 @@ Rotor.prototype = {
             return {x: x, y: y, letter: letter};
 
         }, this).forEach(function (pos, i, positionList) {
+
+            if (i === 0) console.log('positionList', positionList);
+
+            // var end = positionList[this.range.indexOf(this.transpose[i])];
+            // var arc = document.createElementNS(ns, 'path');
+            // var d = 'M' + end.x + ' ' + end.y + ' A20 20, 0, 0, 1, ' + pos.x + ' ' + pos.y;
+            // setAttrs(arc, {d: d, stroke: TWC.colors[i], 'stroke-width': 1, fill: 'none'});
+            // lineGroup.appendChild(arc);
             var line = document.createElementNS(ns, 'line');
-            var end = positionList[this.transpose.indexOf(pos.letter)];
+            var end = positionList[this.range.indexOf(this.transpose[i])];
             setAttrs(line, {x1: pos.x, y1: pos.y, x2: end.x, y2: end.y, stroke: TWC.colors[i], 'stroke-width': 1});
             lineGroup.appendChild(line);
         }, this);
 
+        var zeroInputContact = document.createElementNS(ns, 'circle');
+        setAttrs(zeroInputContact, {cx: 80, cy: 0, r: 5, fill: 'green'});
+        this.el.appendChild(zeroInputContact);
+
         this.el.appendChild(lineGroup);
         this.el.appendChild(glyphGroup);
 
-        // the circle behind the starting position letter to make it stand out more
-        var bkdCircle = document.createElementNS(ns, 'circle');
-        setAttrs(bkdCircle, {cx: 0, cy: 0, r: 50, fill: 'rgba(255, 255, 255, .6)'});
-        this.el.appendChild(bkdCircle);
+        // // the circle behind the starting position letter to make it stand out more
+        // var bkdCircle = document.createElementNS(ns, 'circle');
+        // setAttrs(bkdCircle, {cx: 0, cy: 0, r: 50, fill: 'rgba(255, 255, 255, .6)'});
+        // this.el.appendChild(bkdCircle);
 
         // the starting letter
         var startingGlyph = document.createElementNS(ns, 'text');
+        startingGlyph.classList.add('starting-glyph');
         setAttrs(startingGlyph, {'text-anchor': 'middle', 'font-size': 60, dy: 20, transform: 'rotate(180)'});
-        startingGlyph.textContent = this.range.charAt(this.offset);
+        console.log('startingGlyph', this.range[this.offset], this.offset);
+        startingGlyph.textContent = this.offset;
         this.el.appendChild(startingGlyph);
 
         var label = document.createElementNS(ns, 'text');
-        label.textContent = 'Rotor ' + (this.type + 1);
+        label.textContent = 'Rotor ' + this.labelMap[this.type];
         setAttrs(label, {x: 0, y: 120, fill: 'black', 'text-anchor': 'middle', transform: 'rotate(180)'});
         this.el.appendChild(label);
 
@@ -123,13 +175,38 @@ Rotor.prototype = {
 
         }, 500 * (this.type + 1));
 
+        this.rendered = true;
+
         return this;
     },
+    clearPositions: function () {
+        this.el.querySelectorAll('circle').forEach(function (c) {
+            c.classList.remove('input');
+            c.classList.remove('output');
+        });
+    },
     encode: function (input, direction) {
+        console.log('input', input, direction, 'rotor', this.labelMap[this.type], 'this.offset', this.offset);
         if (direction === 'forward') {
-            return this.transpose.charAt(this.range.indexOf(input + this.offset));
+            console.log('input + this.offset', input + this.offset, '(input + this.offset) % 26', (input + this.offset) % 26);
+            var inPosition = (input + this.offset) % 26;
+            console.log('inLetter', this.range[inPosition]);
+            var outLetter = this.transpose[inPosition];
+            var outPosition = this.range.indexOf(outLetter);
+            console.log('outPosition before subtract', outPosition);
+            outPosition -= this.offset % 26;
+
+            if (outPosition < 0) outPosition += 26;
+
+            console.log('inPosition', inPosition);
+            console.log('outLetter', outLetter);
+            console.log('outPosition', outPosition);
+
+            this.inputOffset = input;
+            this.outputOffset = outPosition;
+            return this.outputOffset;
         } else { // after being reflected
-            return this.range.charAt(this.transpose.indexOf(input));
+            return this.range[this.transpose[input]];
         }
     }
 };

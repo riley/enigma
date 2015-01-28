@@ -36,8 +36,8 @@
             this.outputRegister = this.el.querySelector('.output-register');
             this.from.split('').forEach(function (letter, i, list) {
                 var x = i * width / list.length;
-                this.inputRegister.insertAdjacentHTML('afterbegin', '<li class="plugboard-letter"><span>' + letter + '</span></li>');
-                this.outputRegister.insertAdjacentHTML('afterbegin', '<li class="plugboard-letter"><span>' + this.to.charAt(this.from.indexOf(letter)) + '</span></li>');
+                this.inputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + letter + '</span></li>');
+                this.outputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + this.to.charAt(this.from.indexOf(letter)) + '</span></li>');
             }, this);
 
             return this;
@@ -51,7 +51,7 @@
 
     function Enigma(config) {
         this.el = config.el;
-        this.startingLetters = "PJD";
+        this.startingLetters = "FKD";
         this.keyIsDown = false;
 
         this.template =
@@ -82,11 +82,15 @@
         this.rotors = [];
         var rotorContainer = this.el.querySelector('.rotors-container');
         for (var i = 0; i < 3; i++) {
-            var rotor = new Rotor(i, this.startingLetters.charAt(i));
+            var rotor = new Rotor(i, this.range.indexOf(this.startingLetters.charAt(i)));
             this.rotors.push(rotor);
             rotor.render();
             // insert the rotors before the reflector
         }
+
+        // rotors keep track of each other so they can trip over like an odometer
+        this.rotors[0].nextRotor = this.rotors[1];
+        this.rotors[1].nextRotor = this.rotors[2];
 
         this.plugboard = new Plugboard(this.el.querySelector('.plugboard')).render();
 
@@ -111,8 +115,8 @@
 
             if (!e.key) e.key = String.fromCharCode(e.keyCode);
 
-            console.log(e);
-            console.log('this.keyIsDown', this.keyIsDown, e.key);
+            // console.log(e);
+            // console.log('this.keyIsDown', this.keyIsDown, e.key);
 
             var normalFunctions = ["Backspace", "Delete", " ", "Alt", "Control", "Escape", "Shift", "OS"];
 
@@ -160,22 +164,22 @@
             TWC.dispatch.trigger('key_up');
         },
         moveRotors: function (amount) {
-            var messageOffset = document.getElementById('encrypt').value.length;
-            console.log('messageOffset', messageOffset);
+            console.log("MOVING ROTORS");
             this.rotors[0].offset += amount;
-            this.rotors.forEach(function (rotor) {
-                console.log('type', rotor.type, 'offset', rotor.offset);
-            });
         },
         encode: function (input) {
             var plugboardFirstResult = this.plugboard.stecker(input);
-            var firstRotorForward = this.rotors[0].encode(plugboardFirstResult, 'forward');
+            console.log('plugboardFirstResult', plugboardFirstResult);
+            var firstRotorForward = this.rotors[0].encode(this.range.indexOf(plugboardFirstResult), 'forward');
+            console.log('\n');
             var secondRotorForward = this.rotors[1].encode(firstRotorForward, 'forward');
+            console.log('\n');
             var thirdRotorForward = this.rotors[2].encode(secondRotorForward, 'forward');
+            console.log('\n');
             var reflected = this.reflector.encode(thirdRotorForward);
-            var thirdRotorReverse = this.rotors[2].encode(reflected);
-            var secondRotorReverse = this.rotors[1].encode(thirdRotorReverse);
-            var firstRotorReverse = this.rotors[2].encode(secondRotorReverse);
+            var thirdRotorReverse = this.rotors[2].encode(reflected, 'reverse');
+            var secondRotorReverse = this.rotors[1].encode(thirdRotorReverse, 'reverse');
+            var firstRotorReverse = this.rotors[2].encode(secondRotorReverse, 'reverse');
             var plugboardSecondResult = this.plugboard.stecker(firstRotorReverse);
 
             console.log('output', plugboardSecondResult);
@@ -185,5 +189,7 @@
     var enigma = new Enigma({
         el: document.getElementById('enigma')
     });
+
+    document.getElementById('encrypt').focus();
 
 })();
