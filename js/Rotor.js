@@ -20,7 +20,11 @@ function Rotor(type, initialOffset) {
             offset = val;
             console.log('setter', this.el);
             var glyphGroup = this.el.querySelector('.glyph-group');
-            if (glyphGroup) glyphGroup.setAttribute('style', 'transform: rotate(' + -offset * this.increment + 'deg)');
+            if (glyphGroup) {
+                var rot = 'transform: rotate(' + -offset * this.increment + 'deg)';
+                glyphGroup.setAttribute('style', rot);
+                this.el.querySelector('.line-group').setAttribute('style', rot);
+            }
             // internalOffset used for encoding
             this.internalOffset = this.offset % 26;
         }
