@@ -4,6 +4,8 @@ function Lightboard(el) {
 
     TWC.dispatch.on('key_down', this.showKey.bind(this));
     TWC.dispatch.on('key_up', this.clearKeys.bind(this));
+
+    TWC.dispatch.on('encoded', this.showKey.bind(this));
 }
 
 Lightboard.prototype = {
@@ -24,10 +26,13 @@ Lightboard.prototype = {
         return this;
     },
     showKey: function (e, key) {
-        console.log('showKey', key);
+        console.log('showKey', e, key);
         console.log('this.el.id', this.el.id);
-        if (this.el.id === 'input-keys') {
-            this.el.querySelector('.lightboard-letter-' + key).classList.add('active');
+        if (e.type === 'key_down') {
+            document.getElementById('input-keys').querySelector('.lightboard-letter-' + key).classList.add('active');
+        } else if (e.type === 'encoded') {
+            // this.el.querySelector('.lightboard-letter')
+            document.getElementById('output-keys').querySelector('.lightboard-letter-' + key).classList.add('active');
         }
     },
     clearKeys: function () {

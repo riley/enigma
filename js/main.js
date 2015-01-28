@@ -186,9 +186,11 @@
             console.log('\n');
             var firstRotorReverse = this.rotors[2].encode(secondRotorReverse, 'reverse');
             console.log('\n');
-            var plugboardSecondResult = this.plugboard.stecker(firstRotorReverse);
+            var plugboardSecondResult = this.plugboard.stecker(this.range[firstRotorReverse]);
 
             console.log('\noutput', plugboardSecondResult);
+
+            TWC.dispatch.trigger('encoded', plugboardSecondResult);
         }
     };
 

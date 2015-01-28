@@ -32,7 +32,7 @@ Reflector.prototype = {
         // draw lines showing how reflector is wired
         this.from.forEach(function (letter, i, list) {
 
-            if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.encode(letter)) > -1) return true;
+            if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.to.indexOf(letter)) > -1) return true;
 
             var reflectedPosition = this.to.indexOf(letter);
             var path = document.createElementNS(ns, 'path');
