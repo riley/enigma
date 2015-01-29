@@ -1,18 +1,20 @@
 function Reflector(el) {
     this.el = el;
-    this.from = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
     this.to =   "EJMZALYXVBWFCRQUONTSPIKHGD".split('');  // Reflector A from wikipedia
 }
 
 Reflector.prototype = {
     render: function () {
         var svg = document.getElementById('rotors');
+
+        this.el = document.createElementNS(ns, 'g');
+
         var glyphGroup = document.createElementNS(ns, 'g');
         var lineGroup = document.createElementNS(ns, 'g');
 
         var gap = 11;
 
-        this.from.map(function (letter, i) {
+        TWC.a.map(function (letter, i) {
             var circle = document.createElementNS(ns, 'circle');
             var x = i * gap;
             setAttrs(circle, {cx: x, cy: 0, r: 3, fill: 'white', stroke: 'cornflowerblue'});
@@ -30,13 +32,13 @@ Reflector.prototype = {
         var placedLetters = [];
 
         // draw lines showing how reflector is wired
-        this.from.forEach(function (letter, i, list) {
+        TWC.a.forEach(function (letter, i, list) {
 
             if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.to.indexOf(letter)) > -1) return true;
 
             var reflectedPosition = this.to.indexOf(letter);
             var path = document.createElementNS(ns, 'path');
-            var x1 = this.from.indexOf(letter) * gap;
+            var x1 = TWC.a.indexOf(letter) * gap;
             var x2 = reflectedPosition * gap;
             var y = (placedLetters.length / 2 + 1) * 10;
             var d = 'M' + x1 + ',0 L' + x1 + ',' + y + 'L' + x2 + ',' + y + 'L' + x2 + ',0';
@@ -44,14 +46,19 @@ Reflector.prototype = {
 
             lineGroup.appendChild(path);
 
-            placedLetters.push(letter, this.from[reflectedPosition]);
+            placedLetters.push(letter, TWC.a[reflectedPosition]);
 
         }, this);
 
-        svg.appendChild(lineGroup);
-        lineGroup.setAttribute('transform', 'translate(500, 70)');
-        svg.appendChild(glyphGroup);
-        glyphGroup.setAttribute('transform', 'translate(500, 70)');
+        var rLabel = document.createElementNS(ns, 'text');
+        rLabel.textContent = 'Reflector';
+        setAttrs(rLabel, {fill: 'black', transform: 'translate(130,180)', 'text-anchor': 'middle'});
+
+        this.el.appendChild(lineGroup);
+        this.el.appendChild(glyphGroup);
+        this.el.appendChild(rLabel);
+
+        svg.appendChild(this.el);
 
         return this;
     },
