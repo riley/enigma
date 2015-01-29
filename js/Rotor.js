@@ -27,7 +27,7 @@ function Rotor(type, initialOffset) {
                 console.log('setting rotor offset', this.labelMap[this.type], 'to', val);
             }
 
-            if (this.rendered && (val - 1) % 26 === TWC.a.indexOf(this.notch) && this.type !== 2) {
+            if (this.rendered && (val - 1) % 26 === TWC.a.indexOf(this.notch) && this.type !== 0) {
                 this.nextRotor.offset++;
             }
             offset = val;
@@ -128,8 +128,6 @@ Rotor.prototype = {
             return {x: x, y: y, letter: letter};
 
         }, this).forEach(function (pos, i, positionList) {
-
-            if (i === 0) console.log('positionList', positionList);
 
             // var end = positionList[TWC.a.indexOf(this.transpose[i])];
             // var arc = document.createElementNS(ns, 'path');

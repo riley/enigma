@@ -176,23 +176,23 @@
         encode: function (input) {
             var plugboardFirstResult = this.plugboard.stecker(input);
             console.log('plugboardFirstResult', plugboardFirstResult);
-            var firstRotorForward = this.rotors[0].encode(TWC.a.indexOf(plugboardFirstResult), 'forward');
+            var fastRotorForward = this.rotors[2].encode(TWC.a.indexOf(plugboardFirstResult), 'forward');
             console.log('\n');
-            var secondRotorForward = this.rotors[1].encode(firstRotorForward, 'forward');
+            var middleRotorForward = this.rotors[1].encode(fastRotorForward, 'forward');
             console.log('\n');
-            var thirdRotorForward = this.rotors[2].encode(secondRotorForward, 'forward');
+            var slowRotorForward = this.rotors[0].encode(middleRotorForward, 'forward');
             console.log('\n');
-            var reflected = this.reflector.encode(thirdRotorForward);
+            var reflected = this.reflector.encode(slowRotorForward);
             console.log('\n');
             console.log('reflected', reflected);
             console.log('\n');
-            var thirdRotorReverse = this.rotors[2].encode(reflected, 'reverse');
+            var slowRotorReverse = this.rotors[0].encode(reflected, 'reverse');
             console.log('\n');
-            var secondRotorReverse = this.rotors[1].encode(thirdRotorReverse, 'reverse');
+            var middleRotorReverse = this.rotors[1].encode(slowRotorReverse, 'reverse');
             console.log('\n');
-            var firstRotorReverse = this.rotors[2].encode(secondRotorReverse, 'reverse');
+            var fastRotorReverse = this.rotors[2].encode(middleRotorReverse, 'reverse');
             console.log('\n');
-            var plugboardSecondResult = this.plugboard.stecker(TWC.a[firstRotorReverse]);
+            var plugboardSecondResult = this.plugboard.stecker(TWC.a[fastRotorReverse]);
 
             console.log('\noutput', plugboardSecondResult);
 

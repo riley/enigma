@@ -23,4 +23,4 @@ TWC.colors = ['#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c', '#98df8a', 
 
 TWC.a = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
 
-TWC.start = "ABC".split('');
+TWC.start = "MCK".split('');
