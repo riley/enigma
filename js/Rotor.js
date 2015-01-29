@@ -66,6 +66,15 @@ function Rotor(type, initialOffset) {
     });
 
     this.offset = initialOffset;
+
+    this.wiringMap = {};
+    this.wiringMapReverse = {};
+
+    TWC.a.forEach(function (letter, i, alphabet) {
+        var iTo = alphabet.indexOf(this.transpose[i]);
+        this.wiringMap[i] = (26 + iTo - i) % 26;
+        this.wiringMapReverse[iTo] = (26 + i - iTo) % 26;
+    }, this);
 }
 
 Rotor.prototype = {
@@ -185,26 +194,36 @@ Rotor.prototype = {
     },
     encode: function (input, direction) {
         console.log('input', input, direction, 'rotor', this.labelMap[this.type], 'this.offset', this.offset);
-        // if (direction === 'forward') {
-            console.log('input + this.offset', input + this.offset, '(input + this.offset) % 26', (input + this.offset) % 26);
-            var inPosition = (input + this.offset) % 26;
-            console.log('inLetter', TWC.a[inPosition]);
-            var outLetter = this.transpose[inPosition];
-            var outPosition = TWC.a.indexOf(outLetter);
-            console.log('outPosition before subtract', outPosition);
-            outPosition -= this.offset;
+        var encodedPosition;
+        if (direction === 'forward') {
+            encodedPosition = this.wiringMap[(26 + input + this.offset) % 26];
+            encodedPosition = (input + encodedPosition) % 26;
+            console.log('encodedPosition', encodedPosition, TWC.a[encodedPosition]);
+            return encodedPosition;
+            // console.log('input + thi.offset', input + this.offset, '(input + this.offset) % 26', (input + this.offset) % 26);
+            // var inPosition = (input + this.offset) % 26;
+            // var outLetter = this.transpose[inPosition];
+            // var outPosition = TWC.a.indexOf(outLetter);
+            // console.log('outPosition before subtract', outPosition);
+            // outPosition -= this.offset;
 
-            if (outPosition < 0) outPosition += 26;
+            // if (outPosition < 0) outPosition += 26;
 
-            console.log('inPosition', inPosition);
-            console.log('outLetter', outLetter);
-            console.log('outPosition', outPosition);
+            // console.log('inLetter', TWC.a[inPosition]);
+            // console.log('inPosition', inPosition);
+            // console.log('outLetter', outLetter);
+            // console.log('outPosition', outPosition);
 
-            this.inputOffset = input;
-            this.outputOffset = outPosition;
-            return this.outputOffset;
-        // } else { // after being reflected
-        //     return TWC.a[this.transpose[input]];
-        // }
+
+
+            // this.inputOffset = input;
+            // this.outputOffset = outPosition;
+            // return this.outputOffset;
+        } else { // after being reflected
+            encodedPosition = this.wiringMapReverse[(26 + input + this.offset) % 26];
+            encodedPosition = (input + encodedPosition) % 26;
+            console.log('encodedPosition', encodedPosition, TWC.a[encodedPosition]);
+            return encodedPosition;
+        }
     }
 };

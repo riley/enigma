@@ -184,7 +184,7 @@
             console.log('\n');
             var reflected = this.reflector.encode(slowRotorForward);
             console.log('\n');
-            console.log('reflected', reflected);
+            console.log('reflected', reflected, TWC.a[reflected]);
             console.log('\n');
             var slowRotorReverse = this.rotors[0].encode(reflected, 'reverse');
             console.log('\n');
@@ -200,7 +200,7 @@
         }
     };
 
-    var enigma = new Enigma({
+    TWC.enigma = new Enigma({
         el: document.getElementById('enigma')
     });
 

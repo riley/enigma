@@ -1,6 +1,15 @@
 function Reflector(el) {
     this.el = el;
-    this.to =   "EJMZALYXVBWFCRQUONTSPIKHGD".split('');  // Reflector A from wikipedia
+    this.wires = "YRUHQSLDPXNGOKMIEBFZCWVJAT".split('');  // Reflector B from wikipedia
+
+    this.wiringMap = {};
+    this.wiringMapReverse = {};
+
+    TWC.a.forEach(function (letter, i, alphabet) {
+        var iTo = alphabet.indexOf(this.wires[i]);
+        this.wiringMap[i] = (26 + iTo - i) % 26;
+        this.wiringMapReverse[iTo] = (26 + i - iTo) % 26;
+    }, this);
 }
 
 Reflector.prototype = {
@@ -34,9 +43,9 @@ Reflector.prototype = {
         // draw lines showing how reflector is wired
         TWC.a.forEach(function (letter, i, list) {
 
-            if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.to.indexOf(letter)) > -1) return true;
+            if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.wires.indexOf(letter)) > -1) return true;
 
-            var reflectedPosition = this.to.indexOf(letter);
+            var reflectedPosition = this.wires.indexOf(letter);
             var path = document.createElementNS(ns, 'path');
             var x1 = TWC.a.indexOf(letter) * gap;
             var x2 = reflectedPosition * gap;
@@ -63,6 +72,10 @@ Reflector.prototype = {
         return this;
     },
     encode: function (input) {
-        return this.to.indexOf(this.to[input]);
+        console.log('reflector input', input, TWC.a[input]);
+        console.log('reflector map', this.wiringMap[input]);
+        var reflectedPosition = (input + this.wiringMap[input]) % 26;
+        console.log('reflectedPosition', TWC.a[reflectedPosition]);
+        return reflectedPosition;
     }
 };
