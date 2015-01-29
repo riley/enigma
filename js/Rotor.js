@@ -27,7 +27,7 @@ function Rotor(type, initialOffset) {
                 console.log('setting rotor offset', this.labelMap[this.type], 'to', val);
             }
 
-            if (this.rendered && (val - 1) % 26 === this.range.indexOf(this.notch) && this.type !== 2) {
+            if (this.rendered && (val - 1) % 26 === TWC.a.indexOf(this.notch) && this.type !== 2) {
                 this.nextRotor.offset++;
             }
             offset = val;
@@ -37,7 +37,7 @@ function Rotor(type, initialOffset) {
                 var rot = 'transform: rotate(' + -offset * this.increment + 'deg)';
                 glyphGroup.setAttribute('style', rot);
                 this.el.querySelector('.line-group').setAttribute('style', rot);
-                this.el.querySelector('.starting-glyph').textContent = this.offset % 26;
+                this.el.querySelector('.starting-glyph').textContent = TWC.a[this.offset % 26];
             }
         }
     });
@@ -72,7 +72,6 @@ Rotor.prototype = {
     labelMap: ['I', 'II', 'III'],
     rendered: false,
     increment: 360 / 26,
-    range: "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(''),
     // corresponds to army and airforce Enigmas
     // these are the I, II, and III rotors from a 1930 Enigma
     variants: {
@@ -86,7 +85,7 @@ Rotor.prototype = {
         var svg = document.getElementById('rotors');
 
         this.el.id = 'rotor-group-' + this.type;
-        this.el.setAttribute('transform', 'translate(' + (this.type * 160 + 90) + ',120) rotate(180)');
+        // this.el.setAttribute('transform', 'translate(' + (this.type * 160 + 90) + ',120) rotate(180)');
 
         var lineGroup = document.createElementNS(ns, 'g');
         lineGroup.classList.add('line-group'); // class added so we can transform with css later
@@ -96,7 +95,7 @@ Rotor.prototype = {
         glyphGroup.classList.add('glyph-group');
         glyphGroup.setAttribute('style', 'transform: rotate(' + -this.offset * this.increment + 'deg)');
 
-        this.glyphPositions = this.range.map(function (letter, i, list) {
+        this.glyphPositions = TWC.a.map(function (letter, i, list) {
             var angle = TAU / list.length * i;
             var radius = 70;
             var x = Math.cos(angle) * radius;
@@ -132,13 +131,13 @@ Rotor.prototype = {
 
             if (i === 0) console.log('positionList', positionList);
 
-            // var end = positionList[this.range.indexOf(this.transpose[i])];
+            // var end = positionList[TWC.a.indexOf(this.transpose[i])];
             // var arc = document.createElementNS(ns, 'path');
             // var d = 'M' + end.x + ' ' + end.y + ' A20 20, 0, 0, 1, ' + pos.x + ' ' + pos.y;
             // setAttrs(arc, {d: d, stroke: TWC.colors[i], 'stroke-width': 1, fill: 'none'});
             // lineGroup.appendChild(arc);
             var line = document.createElementNS(ns, 'line');
-            var end = positionList[this.range.indexOf(this.transpose[i])];
+            var end = positionList[TWC.a.indexOf(this.transpose[i])];
             setAttrs(line, {x1: pos.x, y1: pos.y, x2: end.x, y2: end.y, stroke: TWC.colors[i], 'stroke-width': 1});
             lineGroup.appendChild(line);
         }, this);
@@ -159,14 +158,15 @@ Rotor.prototype = {
         var startingGlyph = document.createElementNS(ns, 'text');
         startingGlyph.classList.add('starting-glyph');
         setAttrs(startingGlyph, {'text-anchor': 'middle', 'font-size': 60, dy: 20, transform: 'rotate(180)'});
-        console.log('startingGlyph', this.range[this.offset], this.offset);
-        startingGlyph.textContent = this.offset;
+        console.log('startingGlyph', TWC.a[this.offset], this.offset);
+        // startingGlyph.textContent = this.offset;
+        startingGlyph.textContent = TWC.a[this.offset];
         this.el.appendChild(startingGlyph);
 
-        var label = document.createElementNS(ns, 'text');
-        label.textContent = 'Rotor ' + this.labelMap[this.type];
-        setAttrs(label, {x: 0, y: 120, fill: 'black', 'text-anchor': 'middle', transform: 'rotate(180)'});
-        this.el.appendChild(label);
+        var rotorLabel = document.createElementNS(ns, 'text');
+        rotorLabel.textContent = 'Rotor ' + this.labelMap[this.type];
+        setAttrs(rotorLabel, {x: 0, y: 120, fill: 'black', 'text-anchor': 'middle', transform: 'rotate(180)'});
+        this.el.appendChild(rotorLabel);
 
         svg.appendChild(this.el);
 
@@ -190,9 +190,9 @@ Rotor.prototype = {
         // if (direction === 'forward') {
             console.log('input + this.offset', input + this.offset, '(input + this.offset) % 26', (input + this.offset) % 26);
             var inPosition = (input + this.offset) % 26;
-            console.log('inLetter', this.range[inPosition]);
+            console.log('inLetter', TWC.a[inPosition]);
             var outLetter = this.transpose[inPosition];
-            var outPosition = this.range.indexOf(outLetter);
+            var outPosition = TWC.a.indexOf(outLetter);
             console.log('outPosition before subtract', outPosition);
             outPosition -= this.offset;
 
@@ -206,7 +206,7 @@ Rotor.prototype = {
             this.outputOffset = outPosition;
             return this.outputOffset;
         // } else { // after being reflected
-        //     return this.range[this.transpose[input]];
+        //     return TWC.a[this.transpose[input]];
         // }
     }
 };

@@ -9,10 +9,9 @@ function Lightboard(el) {
 }
 
 Lightboard.prototype = {
-    range: "QWERTZUIOASDFGHJKPYXCVBNML",
     render: function () {
         var w = 100 / 9 + '%';
-        this.glyphPositions = this.range.split('').forEach(function (letter, i) {
+        this.glyphPositions = TWC.a.forEach(function (letter, i) {
             var div = document.createElement('div');
             div.classList.add('lightboard-letter', 'lightboard-letter-' + letter);
             div.style.width = w;

@@ -16,8 +16,8 @@
 
     function Plugboard(el) {
         this.el = el;
-        this.from = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        this.to =   "YRUHQSLDPXNGOKMIEBFZCWVJAT"; // this is just Reflector B settings. ssh
+        // this.to =   "YRUHQSLDPXNGOKMIEBFZCWVJAT"; // this is just Reflector B settings. ssh
+        this.to = TWC.a;
 
         TWC.dispatch.on('key_up', this.clearPositions.bind(this));
 
@@ -25,19 +25,19 @@
 
     Plugboard.prototype = {
         stecker: function (letter) {
-            var fromIndex = this.from.indexOf(letter);
+            var fromIndex = TWC.a.indexOf(letter);
             this.inputRegister.childNodes[fromIndex].classList.add('active');
             this.outputRegister.childNodes[fromIndex].classList.add('active');
-            return this.to.charAt(this.from.indexOf(letter));
+            return this.to[TWC.a.indexOf(letter)];
         },
         render: function () {
             var width = this.el.getBoundingClientRect().width;
             this.inputRegister = this.el.querySelector('.input-register');
             this.outputRegister = this.el.querySelector('.output-register');
-            this.from.split('').forEach(function (letter, i, list) {
+            TWC.a.forEach(function (letter, i, list) {
                 var x = i * width / list.length;
                 this.inputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + letter + '</span></li>');
-                this.outputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + this.to.charAt(this.from.indexOf(letter)) + '</span></li>');
+                this.outputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + this.to[TWC.a.indexOf(letter)] + '</span></li>');
             }, this);
 
             return this;
@@ -51,7 +51,6 @@
 
     function Enigma(config) {
         this.el = config.el;
-        this.startingLetters = "MCK";
         this.keyIsDown = false;
 
         this.template =
@@ -82,19 +81,21 @@
         this.rotors = [];
         var rotorContainer = this.el.querySelector('.rotors-container');
         for (var i = 0; i < 3; i++) {
-            var rotor = new Rotor(i, this.range.indexOf(this.startingLetters.charAt(i)));
+            var rotor = new Rotor(i, TWC.a.indexOf(TWC.start[i]));
             this.rotors.push(rotor);
             rotor.render();
+            rotor.el.setAttribute('transform', 'translate(' + (i * 160 + 390) + ',120) rotate(180)');
             // insert the rotors before the reflector
         }
 
         // rotors keep track of each other so they can trip over like an odometer
-        this.rotors[0].nextRotor = this.rotors[1];
-        this.rotors[1].nextRotor = this.rotors[2];
+        this.rotors[2].nextRotor = this.rotors[1];
+        this.rotors[1].nextRotor = this.rotors[0];
 
         this.plugboard = new Plugboard(this.el.querySelector('.plugboard')).render();
 
-        this.reflector = new Reflector(this.el.querySelector('.reflector')).render();
+        this.reflector = new Reflector().render();
+        this.reflector.el.setAttribute('transform', 'translate(20, 60)');
         // insert the reflector immediately after the rotors
 
         this.inputKeys = new Lightboard(this.el.querySelector('.input-lightboard')).render();
@@ -112,7 +113,6 @@
     }
 
     Enigma.prototype = {
-        range: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
         handleKeyDown: function (e) {
 
             if (!e.key) e.key = String.fromCharCode(e.keyCode);
@@ -137,7 +137,7 @@
                 e.preventDefault();
                 return; // don't do anything if they're holding the key down
             }
-            if (this.range.indexOf(e.key.toUpperCase()) > -1) { // between A and Z
+            if (TWC.a.indexOf(e.key.toUpperCase()) > -1) { // between A and Z
                 console.log(e);
                 console.log(e.key.toUpperCase());
                 this.keyIsDown = true;
@@ -170,12 +170,13 @@
         },
         moveRotors: function (amount) {
             console.log("MOVING ROTORS");
-            this.rotors[0].offset += amount;
+            this.rotors[2].offset += amount;
+            // rotor III is the fast rotor
         },
         encode: function (input) {
             var plugboardFirstResult = this.plugboard.stecker(input);
             console.log('plugboardFirstResult', plugboardFirstResult);
-            var firstRotorForward = this.rotors[0].encode(this.range.indexOf(plugboardFirstResult), 'forward');
+            var firstRotorForward = this.rotors[0].encode(TWC.a.indexOf(plugboardFirstResult), 'forward');
             console.log('\n');
             var secondRotorForward = this.rotors[1].encode(firstRotorForward, 'forward');
             console.log('\n');
@@ -191,7 +192,7 @@
             console.log('\n');
             var firstRotorReverse = this.rotors[0].encode(secondRotorReverse, 'reverse');
             console.log('\n');
-            var plugboardSecondResult = this.plugboard.stecker(this.range[firstRotorReverse]);
+            var plugboardSecondResult = this.plugboard.stecker(TWC.a[firstRotorReverse]);
 
             console.log('\noutput', plugboardSecondResult);
 
