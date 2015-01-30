@@ -16,8 +16,8 @@
 
     function Plugboard(el) {
         this.el = el;
-        // this.to =   "YRUHQSLDPXNGOKMIEBFZCWVJAT"; // this is just Reflector B settings. ssh
-        this.to = TWC.a;
+        this.to =   "YRUHQSLDPXNGOKMIEBFZCWVJAT"; // this is just Reflector B settings. ssh
+        // this.to = TWC.a;
 
         TWC.dispatch.on('key_up', this.clearPositions.bind(this));
 

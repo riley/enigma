@@ -51,7 +51,9 @@ Reflector.prototype = {
             var x2 = reflectedPosition * gap;
             var y = (placedLetters.length / 2 + 1) * 10;
             var d = 'M' + x1 + ',0 L' + x1 + ',' + y + 'L' + x2 + ',' + y + 'L' + x2 + ',0';
-            setAttrs(path, {d: d, stroke: TWC.colors[i], fill: 'none'});
+            setAttrs(path, {d: d, stroke: TWC.colors[placedLetters.length / 2], fill: 'none'});
+
+            console.log('creating reflector letter', letter, i, TWC.a[reflectedPosition], TWC.colors[placedLetters.length / 2]);
 
             lineGroup.appendChild(path);
 

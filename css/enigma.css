@@ -162,10 +162,18 @@ circle.rotor-letter-bkd {
   fill: cornflowerblue;
 }
 
-circle.rotor-letter-bkd.input {
+circle.rotor-letter-bkd.inForward {
   fill: orangered;
 }
 
-circle.rotor-letter-bkd.output {
+circle.rotor-letter-bkd.outForward {
   fill: darkred;
+}
+
+circle.rotor-letter-bkd.inReverse {
+  fill: yellowgreen;
+}
+
+circle.rotor-letter-bkd.outReverse {
+  fill: forestgreen;
 }

@@ -9,8 +9,8 @@ function Rotor(type, initialOffset) {
     console.log('new Rotor initialOffset', initialOffset);
 
     var offset = initialOffset;
-    var inputOffset;
-    var outputOffset;
+    var inForward, outForward;
+    var inReverse, outReverse;
 
     // this is so when a rotor makes a full turn, it doesn't animate all the way backwards
     // offset
@@ -42,30 +42,54 @@ function Rotor(type, initialOffset) {
         }
     });
 
-    Object.defineProperty(this, 'inputOffset', {
-        get: function () {
-            return inputOffset;
-        },
+    Object.defineProperty(this, 'inForward', {
+        get: function () {return inForward; },
         set: function (val) {
-            inputOffset = val;
-            console.log('inputOffset', val, 'rotor', this.type, 'this.offset', this.offset);
+            inForward = val;
+            console.log('inForward', val, 'rotor', this.type, 'this.offset', this.offset);
 
-            this.el.querySelectorAll('.rotor-letter-bkd')[(val + this.offset) % 26].classList.add('input');
+            this.el.querySelectorAll('.rotor-letter-bkd')[val].classList.add('inForward');
         }
     });
 
-    Object.defineProperty(this, 'outputOffset', {
-        get: function () {
-            return outputOffset;
-        },
+    Object.defineProperty(this, 'outForward', {
+        get: function () {return outForward; },
         set: function (val) {
-            outputOffset = val;
-            console.log('outputOffset', val);
-            this.el.querySelectorAll('.rotor-letter-bkd')[(val + this.offset) % 26].classList.add('output');
+            outForward = val;
+            console.log('outForward', val);
+            this.el.querySelectorAll('.rotor-letter-bkd')[val].classList.add('outForward');
+            setAttrs(this.forwardWire, {
+                x1: this.glyphPositions[this.inForward].x,
+                y1: this.glyphPositions[this.inForward].y,
+                x2: this.glyphPositions[val].x,
+                y2: this.glyphPositions[val].y
+            });
         }
     });
 
-    this.offset = initialOffset;
+    Object.defineProperty(this, 'inReverse', {
+        get: function () { return inReverse; },
+        set: function (val) {
+            inReverse = val;
+            this.el.querySelectorAll('.rotor-letter-bkd')[val].classList.add('inReverse');
+        }
+    });
+
+    Object.defineProperty(this, 'outReverse', {
+        get: function () { return outReverse; },
+        set: function (val) {
+            outReverse = val;
+            this.el.querySelectorAll('.rotor-letter-bkd')[val].classList.add('outReverse');
+            setAttrs(this.reverseWire, {
+                x1: this.glyphPositions[this.inReverse].x,
+                y1: this.glyphPositions[this.inReverse].y,
+                x2: this.glyphPositions[val].x,
+                y2: this.glyphPositions[val].y
+            });
+        }
+    });
+
+    this.offset = offset;
 
     this.wiringMap = {};
     this.wiringMapReverse = {};
@@ -94,7 +118,6 @@ Rotor.prototype = {
         var svg = document.getElementById('rotors');
 
         this.el.id = 'rotor-group-' + this.type;
-        // this.el.setAttribute('transform', 'translate(' + (this.type * 160 + 90) + ',120) rotate(180)');
 
         var lineGroup = document.createElementNS(ns, 'g');
         lineGroup.classList.add('line-group'); // class added so we can transform with css later
@@ -112,17 +135,18 @@ Rotor.prototype = {
 
             // create the ring of letters
             var g = document.createElementNS(ns, 'g');
-            // g.setAttribute('style', 'transform: "translate(' + x + 'px,' + y + 'px) rotate(' + rad2deg(angle + HALF_PI) + 'deg)"');
             g.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + rad2deg(angle + HALF_PI) + 'deg)';
             var circle = document.createElementNS(ns, 'circle');
             circle.classList.add('rotor-letter-bkd');
             setAttrs(circle, {cx: 0, cy: 0, r: 8});
             g.appendChild(circle);
+            g.x = x;
+            g.y = y;
 
             var text = document.createElementNS(ns, 'text');
             setAttrs(text, {x: 0, y: 0, 'text-anchor': 'middle', fill: 'white', 'font-size': 11, dy: 4});
-            // text.textContent = letter;
-            text.textContent = i;
+            text.textContent = letter;
+            // text.textContent = i;
             g.appendChild(text);
 
             if (letter === this.notch) { // add a marker of some kind to indicate notch position
@@ -134,20 +158,16 @@ Rotor.prototype = {
 
             glyphGroup.appendChild(g);
 
-            return {x: x, y: y, letter: letter};
+            return g;
 
-        }, this).forEach(function (pos, i, positionList) {
-
-            // var end = positionList[TWC.a.indexOf(this.transpose[i])];
-            // var arc = document.createElementNS(ns, 'path');
-            // var d = 'M' + end.x + ' ' + end.y + ' A20 20, 0, 0, 1, ' + pos.x + ' ' + pos.y;
-            // setAttrs(arc, {d: d, stroke: TWC.colors[i], 'stroke-width': 1, fill: 'none'});
-            // lineGroup.appendChild(arc);
-            var line = document.createElementNS(ns, 'line');
-            var end = positionList[TWC.a.indexOf(this.transpose[i])];
-            setAttrs(line, {x1: pos.x, y1: pos.y, x2: end.x, y2: end.y, stroke: TWC.colors[i], 'stroke-width': 1});
-            lineGroup.appendChild(line);
         }, this);
+
+        this.forwardWire = document.createElementNS(ns, 'line');
+        this.reverseWire = document.createElementNS(ns, 'line');
+        setAttrs(this.forwardWire, {stroke: 'orangered'});
+        setAttrs(this.reverseWire, {stroke: 'forestgreen'});
+        lineGroup.appendChild(this.forwardWire);
+        lineGroup.appendChild(this.reverseWire);
 
         var zeroInputContact = document.createElementNS(ns, 'circle');
         setAttrs(zeroInputContact, {cx: 80, cy: 0, r: 5, fill: 'green'});
@@ -199,30 +219,17 @@ Rotor.prototype = {
             encodedPosition = this.wiringMap[(26 + input + this.offset) % 26];
             encodedPosition = (input + encodedPosition) % 26;
             console.log('encodedPosition', encodedPosition, TWC.a[encodedPosition]);
+
+            this.inForward = input;
+            this.outForward = encodedPosition;
+
             return encodedPosition;
-            // console.log('input + thi.offset', input + this.offset, '(input + this.offset) % 26', (input + this.offset) % 26);
-            // var inPosition = (input + this.offset) % 26;
-            // var outLetter = this.transpose[inPosition];
-            // var outPosition = TWC.a.indexOf(outLetter);
-            // console.log('outPosition before subtract', outPosition);
-            // outPosition -= this.offset;
-
-            // if (outPosition < 0) outPosition += 26;
-
-            // console.log('inLetter', TWC.a[inPosition]);
-            // console.log('inPosition', inPosition);
-            // console.log('outLetter', outLetter);
-            // console.log('outPosition', outPosition);
-
-
-
-            // this.inputOffset = input;
-            // this.outputOffset = outPosition;
-            // return this.outputOffset;
         } else { // after being reflected
             encodedPosition = this.wiringMapReverse[(26 + input + this.offset) % 26];
             encodedPosition = (input + encodedPosition) % 26;
             console.log('encodedPosition', encodedPosition, TWC.a[encodedPosition]);
+            this.inReverse = input;
+            this.outReverse = encodedPosition;
             return encodedPosition;
         }
     }
