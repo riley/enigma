@@ -1,5 +1,5 @@
 body {margin: 0; padding: 0;}
-* {box-sizing: border-box; font-family: sans-serif;}
+* {box-sizing: border-box; font-family: 'Courier New';}
 
 .container {
   width: 800px;
@@ -32,7 +32,7 @@ body {margin: 0; padding: 0;}
 }
 
 .plugboard {
-  border: 1px solid yellow;
+
 }
 
 .plugboard ul {
@@ -44,7 +44,7 @@ body {margin: 0; padding: 0;}
   text-transform: uppercase;
   text-align: center;
   margin: 0;
-  padding: 30px 0;
+  padding: 10px 0;
 }
 
 .plugboard-letter {
@@ -62,23 +62,16 @@ body {margin: 0; padding: 0;}
   line-height: 25px;
   margin: 0 auto;
   color: white;
-  background: lightslategray;
+  background: #222;
+  border: 1px solid #aaa;
 }
 
 .plugboard-letter.active span {
-  background: #8470FF;
+  background: #d19d59;
 }
 
 .rotors-container {
-  border: 1px solid lightgreen;
-}
 
-.rotor {
-  border: 1px solid blue;
-  width: 160px;
-  height: 160px;
-  float: left;
-  margin-right: 20px;
 }
 
 .rotor-letters {
@@ -102,7 +95,6 @@ body {margin: 0; padding: 0;}
 }
 
 .lightboard {
-  background: rgba(0, 255, 0, .1);
   height: 145px;
 }
 
@@ -115,7 +107,9 @@ body {margin: 0; padding: 0;}
 }
 
 .lightboard-letter span {
-  background: lightsalmon;
+  /*background: #221c0f;*/
+  background: #283546;
+  position: relative;
   width: 40px;
   height: 40px;
   margin: 0 auto;
@@ -123,10 +117,31 @@ body {margin: 0; padding: 0;}
   display: block;
   border-radius: 20px;
   font-size: 26px;
+  border: 1px solid #332836;
+  -webkit-box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
+  -moz-box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
+  box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
+}
+
+.lightboard-letter span:before {
+  content: " ";
+  position: absolute;
+  z-index: -1;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 21px;
+  box-sizing: content-box;
+  border: 5px solid #fff8f6;
+  -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.4);
+  -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.4);
+  box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.4);
 }
 
 .lightboard-letter.active span {
-  background: #8B5742;
+  background: #363d4d;
+  transform: translateY(2px);
 }
 
 .lightboard-label {
@@ -137,7 +152,16 @@ body {margin: 0; padding: 0;}
 #circuits {
   z-index: -1;
   position: absolute;
-  background: rgba(0, 0, 0, .1);
+  background: url(../img/Plastic0008_L.jpg);
+  background-size: contain;
+}
+
+.encrypt-module {
+  background: #22231d;
+}
+
+.encrypt-module p {
+  color: #f1a126;
 }
 
 #encrypt {
@@ -146,7 +170,7 @@ body {margin: 0; padding: 0;}
 }
 
 #encoded-message {
-  border: 1px solid orange;
+
 }
 
 .output-message {
@@ -159,13 +183,21 @@ body {margin: 0; padding: 0;}
 }
 
 circle.rotor-letter-bkd {
-  fill: cornflowerblue;
+  fill: #231b0f;
 }
 
-circle.rotor-letter-bkd.input {
+circle.rotor-letter-bkd.inForward {
   fill: orangered;
 }
 
-circle.rotor-letter-bkd.output {
+circle.rotor-letter-bkd.outForward {
   fill: darkred;
+}
+
+circle.rotor-letter-bkd.inReverse {
+  fill: yellowgreen;
+}
+
+circle.rotor-letter-bkd.outReverse {
+  fill: forestgreen;
 }

@@ -1,6 +1,15 @@
 function Reflector(el) {
     this.el = el;
-    this.to =   "EJMZALYXVBWFCRQUONTSPIKHGD".split('');  // Reflector A from wikipedia
+    this.wires = "YRUHQSLDPXNGOKMIEBFZCWVJAT".split('');  // Reflector B from wikipedia
+
+    this.wiringMap = {};
+    this.wiringMapReverse = {};
+
+    TWC.a.forEach(function (letter, i, alphabet) {
+        var iTo = alphabet.indexOf(this.wires[i]);
+        this.wiringMap[i] = (26 + iTo - i) % 26;
+        this.wiringMapReverse[iTo] = (26 + i - iTo) % 26;
+    }, this);
 }
 
 Reflector.prototype = {
@@ -34,15 +43,23 @@ Reflector.prototype = {
         // draw lines showing how reflector is wired
         TWC.a.forEach(function (letter, i, list) {
 
-            if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.to.indexOf(letter)) > -1) return true;
+            if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.wires.indexOf(letter)) > -1) return true;
 
-            var reflectedPosition = this.to.indexOf(letter);
+            var reflectedPosition = this.wires.indexOf(letter);
             var path = document.createElementNS(ns, 'path');
             var x1 = TWC.a.indexOf(letter) * gap;
             var x2 = reflectedPosition * gap;
             var y = (placedLetters.length / 2 + 1) * 10;
             var d = 'M' + x1 + ',0 L' + x1 + ',' + y + 'L' + x2 + ',' + y + 'L' + x2 + ',0';
-            setAttrs(path, {d: d, stroke: TWC.colors[i], fill: 'none'});
+            var randomGrey = (Math.random() * 0xff) | 0;
+            setAttrs(path, {
+                d: d,
+                stroke: 'rgb(' + randomGrey + ',' + randomGrey + ',' + randomGrey + ')',
+                fill: 'none',
+                'stroke-width': 2
+            });
+
+            console.log('creating reflector letter', letter, i, TWC.a[reflectedPosition], TWC.colors[placedLetters.length / 2]);
 
             lineGroup.appendChild(path);
 
@@ -63,6 +80,10 @@ Reflector.prototype = {
         return this;
     },
     encode: function (input) {
-        return this.to.indexOf(this.to[input]);
+        console.log('reflector input', input, TWC.a[input]);
+        console.log('reflector map', this.wiringMap[input]);
+        var reflectedPosition = (input + this.wiringMap[input]) % 26;
+        console.log('reflectedPosition', TWC.a[reflectedPosition]);
+        return reflectedPosition;
     }
 };
