@@ -28,7 +28,7 @@ Lightboard.prototype = {
         console.log('showKey', e, key);
         console.log('this.el.id', this.el.id);
         if (e.type === 'key_down') {
-            document.getElementById('input-keys').querySelector('.lightboard-letter-' + key).classList.add('active');
+            // document.getElementById('input-keys').querySelector('.lightboard-letter-' + key).classList.add('active');
         } else if (e.type === 'encoded') {
             // this.el.querySelector('.lightboard-letter')
             document.getElementById('output-keys').querySelector('.lightboard-letter-' + key).classList.add('active');

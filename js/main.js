@@ -1,19 +1,5 @@
 (function () {
 
-    function Circuit(el) {
-        // a canvas element that draws the lines between components
-        this.el = el;
-    }
-
-    Circuit.prototype = {
-        render: function () {
-            var enigmaRect = this.el.parentNode.getBoundingClientRect();
-            this.el.width = enigmaRect.width;
-            this.el.height = enigmaRect.height;
-            return this;
-        }
-    };
-
     function Plugboard(el) {
         this.el = el;
         this.to =   "YRUHQSLDPXNGOKMIEBFZCWVJAT"; // this is just Reflector B settings. ssh
@@ -28,16 +14,24 @@
             var fromIndex = TWC.a.indexOf(letter);
             this.inputRegister.childNodes[fromIndex].classList.add('active');
             this.outputRegister.childNodes[fromIndex].classList.add('active');
+
+            TWC.dispatch.trigger('stecker', {
+                in: this.inputRegister.childNodes[fromIndex],
+                out: this.outputRegister.childNodes[fromIndex]
+            });
+
             return this.to[TWC.a.indexOf(letter)];
         },
         render: function () {
             var width = this.el.getBoundingClientRect().width;
             this.inputRegister = this.el.querySelector('.input-register');
             this.outputRegister = this.el.querySelector('.output-register');
-            TWC.a.forEach(function (letter, i, list) {
+            var plugHolder = document.getElementById('plugs');
+            this.plugs = TWC.a.forEach(function (letter, i, list) {
                 var x = i * width / list.length;
                 this.inputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + letter + '</span></li>');
                 this.outputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + this.to[TWC.a.indexOf(letter)] + '</span></li>');
+                plugHolder.insertAdjacentHTML('beforeend', '<div class="plug"></div>');
             }, this);
 
             return this;
@@ -59,20 +53,16 @@
                 '<p>The Enigma machine encodes characters by completing a circuit through a series of plugboards rotors, and a reflector. Type letters into the input box to trace how the connection is made.</p>' +
                 '<input id="encrypt" type="text" >' +
             '</div>' +
-            '<div class="input-lightboard lightboard">' +
-                '<p class="lightboard-label">Input Lightboard</p>' +
-            '</div>' +
             '<div class="plugboard">' +
+                '<div id="plugs"></div>' +
                 '<ul class="input-register"></ul>' +
-                '<p class="plugboard-label">Plugboard</p>' +
+                '<p class="plugboard-label"><strong>Plugboard</strong></p>' +
                 '<ul class="output-register"></ul>' +
             '</div>' +
             '<div class="rotors-container clearfix">' +
-                '<svg id="rotors" width="100%" height="300"></svg>' +
+                '<svg id="rotors" width="100%" height="230"></svg>' +
             '</div>' +
-            '<div class="output-lightboard lightboard">' +
-                '<p class="lightboard-label">Output lightboard</p>' +
-            '</div>' +
+            '<div class="output-lightboard lightboard"></div>' +
             '<div id="encoded-message">' +
                 '<p>Output message</p>' +
                 '<p class="output-message"></div>' +
@@ -97,11 +87,9 @@
         this.plugboard = new Plugboard(this.el.querySelector('.plugboard')).render();
 
         this.reflector = new Reflector().render();
-        this.reflector.el.setAttribute('transform', 'translate(20, 60)');
+        this.reflector.el.setAttribute('transform', 'translate(20, 160)');
         // insehttp://ad-assets.nytimes.com/pi/enigma/rt the reflector immediately after the rotors
 
-        this.inputKeys = new Lightboard(this.el.querySelector('.input-lightboard')).render();
-        this.inputKeys.el.id = 'input-keys';
         this.outputKeys = new Lightboard(this.el.querySelector('.output-lightboard')).render();
         this.outputKeys.el.id = 'output-keys';
 
@@ -176,6 +164,8 @@
             // rotor III is the fast rotor
         },
         encode: function (input) {
+            // move rotors
+
             var plugboardFirstResult = this.plugboard.stecker(input);
             console.log('plugboardFirstResult', plugboardFirstResult);
             var fastRotorForward = this.rotors[2].encode(TWC.a.indexOf(plugboardFirstResult), 'forward');

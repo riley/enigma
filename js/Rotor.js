@@ -58,12 +58,10 @@ function Rotor(type, initialOffset) {
             outForward = val;
             console.log('outForward', val);
             this.el.querySelectorAll('.rotor-letter-bkd')[val].classList.add('outForward');
-            setAttrs(this.forwardWire, {
-                x1: this.glyphPositions[this.inForward].x,
-                y1: this.glyphPositions[this.inForward].y,
-                x2: this.glyphPositions[val].x,
-                y2: this.glyphPositions[val].y
-            });
+
+            var d = 'M' + this.glyphPositions[this.inForward].x + ' ' + this.glyphPositions[this.inForward].y + ' Q 0 0, ' + this.glyphPositions[val].x + ' ' + this.glyphPositions[val].y;
+
+            setAttrs(this.forwardWire, {d: d});
         }
     });
 
@@ -80,12 +78,10 @@ function Rotor(type, initialOffset) {
         set: function (val) {
             outReverse = val;
             this.el.querySelectorAll('.rotor-letter-bkd')[val].classList.add('outReverse');
-            setAttrs(this.reverseWire, {
-                x1: this.glyphPositions[this.inReverse].x,
-                y1: this.glyphPositions[this.inReverse].y,
-                x2: this.glyphPositions[val].x,
-                y2: this.glyphPositions[val].y
-            });
+
+            var d = 'M' + this.glyphPositions[this.inReverse].x + ' ' + this.glyphPositions[this.inReverse].y + ' Q 0 0, ' + this.glyphPositions[val].x + ' ' + this.glyphPositions[val].y;
+
+            setAttrs(this.reverseWire, {d: d});
         }
     });
 
@@ -162,10 +158,10 @@ Rotor.prototype = {
 
         }, this);
 
-        this.forwardWire = document.createElementNS(ns, 'line');
-        this.reverseWire = document.createElementNS(ns, 'line');
-        setAttrs(this.forwardWire, {stroke: 'orangered'});
-        setAttrs(this.reverseWire, {stroke: 'forestgreen'});
+        this.forwardWire = document.createElementNS(ns, 'path');
+        this.reverseWire = document.createElementNS(ns, 'path');
+        setAttrs(this.forwardWire, {stroke: 'orangered', fill: 'none'});
+        setAttrs(this.reverseWire, {stroke: 'forestgreen', fill: 'none'});
         lineGroup.appendChild(this.forwardWire);
         lineGroup.appendChild(this.reverseWire);
 
@@ -188,7 +184,7 @@ Rotor.prototype = {
 
         var rotorLabel = document.createElementNS(ns, 'text');
         rotorLabel.textContent = 'Rotor ' + this.labelMap[this.type];
-        setAttrs(rotorLabel, {x: 0, y: 120, fill: 'black', 'text-anchor': 'middle', transform: 'rotate(180)'});
+        setAttrs(rotorLabel, {x: 0, y: 95, fill: 'black', 'text-anchor': 'middle', transform: 'rotate(180)', 'font-size': 20});
         this.el.appendChild(rotorLabel);
 
         svg.appendChild(this.el);

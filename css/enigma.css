@@ -32,7 +32,32 @@ body {margin: 0; padding: 0;}
 }
 
 .plugboard {
+  margin-top: 15px;
+  position: relative;
+}
 
+#plugs {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  z-index: -1
+}
+
+.plug {
+  margin: 0 1.923%;
+  width: 0;
+  float: left;
+  /*margin: 3.846%;*/
+  height: 100%;
+}
+
+.plug:after {
+  border: 1px solid black;
+  content: ' ';
+  width: 0;
+  display: block;
+  position: absolute;
+  height: 90%;
 }
 
 .plugboard ul {
@@ -45,6 +70,13 @@ body {margin: 0; padding: 0;}
   text-align: center;
   margin: 0;
   padding: 10px 0;
+  color: #f1a126;
+}
+
+.plugboard-label strong {
+  background: rgba(0, 0, 0, .4);
+  padding: 5px 10px;
+  border-radius: 15px;
 }
 
 .plugboard-letter {
@@ -62,7 +94,7 @@ body {margin: 0; padding: 0;}
   line-height: 25px;
   margin: 0 auto;
   color: white;
-  background: #222;
+  background: #283546;
   border: 1px solid #aaa;
 }
 
@@ -96,6 +128,7 @@ body {margin: 0; padding: 0;}
 
 .lightboard {
   height: 145px;
+  padding-top: 14px;
 }
 
 .lightboard-letter {
@@ -119,7 +152,7 @@ body {margin: 0; padding: 0;}
   font-size: 26px;
   border: 1px solid #332836;
   -webkit-box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
-  -moz-box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
+  -moz-box-shadow: inset 0px 3  px 5px 0px rgba(0,0,0,0.4);
   box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
 }
 
@@ -152,7 +185,7 @@ body {margin: 0; padding: 0;}
 #circuits {
   z-index: -1;
   position: absolute;
-  background: url(../img/Plastic0008_L.jpg);
+  background: #000 url(../img/Plastic0008_L.jpg) no-repeat;
   background-size: contain;
 }
 
@@ -200,4 +233,28 @@ circle.rotor-letter-bkd.inReverse {
 
 circle.rotor-letter-bkd.outReverse {
   fill: forestgreen;
+}
+
+.reflector-wire {
+  /*transition: stroke-dashoffset 2s;*/
+  stroke: 'black';
+}
+
+.reflector-wire.active {
+  stroke: orangered;
+}
+
+.reflector-contact {
+  fill: #f1a126;
+  stroke: white;
+}
+
+.reflector-contact.input {
+  stroke: orangered;
+  fill: orangered;
+}
+
+.reflector-contact.output {
+  stroke: darkred;
+  fill: darkred;
 }
