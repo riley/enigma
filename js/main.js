@@ -70,8 +70,8 @@
         handleKeyPress: function (e) {
             this.encodeMessage(document.getElementById('encrypt').value);
         },
-        showLetterz: function (e, encodedMessage, sequence) {
-            document.querySelector('.output-message').textContent = encodedMessage.join('');
+        showLetterz: function (data) {
+            document.querySelector('.output-message').textContent = data.message.join('');
         },
         eraseCode: function () {
             document.querySelector('.output-message').innerHTML = '&nbsp;';
@@ -118,7 +118,10 @@
 
             if (encodedMessage[encodedMessage.length - 1] !== ' ') {
                 console.log('encoded message ready', encodedMessage);
-                RD.dispatch.trigger('encoded', [encodedMessage.map(function (index) { return RD.a[index] || ' '; }), this.sequence]);
+                RD.dispatch.trigger('encoded', {
+                    message: encodedMessage.map(function (index) { return RD.a[index] || ' '; }),
+                    sequence: this.sequence
+                });
             }
 
         },

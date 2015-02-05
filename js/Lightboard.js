@@ -23,23 +23,17 @@ Lightboard.prototype = {
         }, this);
         return this;
     },
-    showKey: function (e, message, sequence) {
+    showKey: function (data) {
         this.clearKeys();
 
-        var lastStep = sequence[sequence.length - 1];
+        var lastStep = data.sequence[data.sequence.length - 1];
 
-        console.log('showKey', e, message);
         console.log('this.el.id', this.el.id);
-        var lastLetter = message[message.length - 1];
+        var lastLetter = data.message[data.message.length - 1];
 
         console.log('lastLetter', lastLetter);
 
-        if (e.type === 'key_down') {
-            // document.getElementById('input-keys').querySelector('.lightboard-letter-' + key).classList.add('active');
-        } else if (e.type === 'encoded') {
-            // this.el.querySelector('.lightboard-letter')
-            document.getElementById('output-keys').querySelector('.lightboard-letter-' + lastLetter).classList.add('active');
-        }
+        document.getElementById('output-keys').querySelector('.lightboard-letter-' + lastLetter).classList.add('active');
     },
     clearKeys: function () {
         this.el.querySelectorAll('.lightboard-letter').forEach(function (node) {

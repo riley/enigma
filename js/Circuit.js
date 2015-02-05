@@ -109,8 +109,8 @@ Circuit.prototype = {
 
         return this;
     },
-    showSequence: function (e, message, sequence) {
-        var lastStep = sequence[sequence.length - 1];
+    showSequence: function (data) {
+        var lastStep = data.sequence[data.sequence.length - 1];
         this.inputGlyph.textContent = RD.a[lastStep.fPlugboard.in];
         this.outputGlyph.textContent = RD.a[lastStep.rPlugboard.out];
 

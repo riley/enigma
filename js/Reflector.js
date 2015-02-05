@@ -98,8 +98,8 @@ Reflector.prototype = {
     getIndexGlobal: function (index) {
         return {x: this.visualOffset.x + this.contacts[index].x, y: this.visualOffset.y + this.contacts[index].y };
     },
-    showConnection: function (e, message, sequence) {
-        var lastStep = sequence[sequence.length - 1];
+    showConnection: function (data) {
+        var lastStep = data.sequence[data.sequence.length - 1];
 
         var input = lastStep.reflector.in;
         var output = lastStep.reflector.out;

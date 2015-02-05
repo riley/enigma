@@ -204,12 +204,12 @@ Rotor.prototype = {
         };
     },
 
-    handleEncodedMessage: function (e, message, sequence) {
-        console.log('handleEncodedMessage', message, sequence);
+    handleEncodedMessage: function (data) {
+        console.log('handleEncodedMessage', data);
 
         this.clearPositions();
 
-        var lastStep = sequence[sequence.length - 1];
+        var lastStep = data.sequence[data.sequence.length - 1];
 
         if (this.type === 0) { // slow rotor
             this.inForward = lastStep.fSlowRotor.in;

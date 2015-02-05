@@ -31,8 +31,8 @@ Plugboard.prototype = {
             node.classList.remove('forward', 'reverse');
         });
     },
-    handleEncodedMessage: function (e, message, sequence) {
-        var lastStep = sequence[sequence.length - 1];
+    handleEncodedMessage: function (data) {
+        var lastStep = data.sequence[data.sequence.length - 1];
 
         this.clearPositions();
 
