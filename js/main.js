@@ -1,57 +1,18 @@
 (function () {
 
-    function Plugboard(el) {
-        this.el = el;
-        this.to =   "YRUHQSLDPXNGOKMIEBFZCWVJAT"; // this is just Reflector B settings. ssh
-        // this.to = TWC.a;
-
-        TWC.dispatch.on('key_up', this.clearPositions.bind(this));
-
-    }
-
-    Plugboard.prototype = {
-        stecker: function (letter) {
-            var fromIndex = TWC.a.indexOf(letter);
-            this.inputRegister.childNodes[fromIndex].classList.add('active');
-            this.outputRegister.childNodes[fromIndex].classList.add('active');
-
-            TWC.dispatch.trigger('stecker', {
-                in: this.inputRegister.childNodes[fromIndex],
-                out: this.outputRegister.childNodes[fromIndex]
-            });
-
-            return this.to[TWC.a.indexOf(letter)];
-        },
-        render: function () {
-            var width = this.el.getBoundingClientRect().width;
-            this.inputRegister = this.el.querySelector('.input-register');
-            this.outputRegister = this.el.querySelector('.output-register');
-            var plugHolder = document.getElementById('plugs');
-            this.plugs = TWC.a.forEach(function (letter, i, list) {
-                var x = i * width / list.length;
-                this.inputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + letter + '</span></li>');
-                this.outputRegister.insertAdjacentHTML('beforeend', '<li class="plugboard-letter"><span>' + this.to[TWC.a.indexOf(letter)] + '</span></li>');
-                plugHolder.insertAdjacentHTML('beforeend', '<div class="plug"></div>');
-            }, this);
-
-            return this;
-        },
-        clearPositions: function () {
-            this.el.querySelectorAll('.plugboard-letter').forEach(function (node) {
-                node.classList.remove('active');
-            });
-        }
-    };
-
     function Enigma(config) {
         this.el = config.el;
-        this.keyIsDown = false;
 
         this.template =
-            '<canvas id="circuits"></canvas>' +
             '<div class="encrypt-module">' +
-                '<p>The Enigma machine encodes characters by completing a circuit through a series of plugboards rotors, and a reflector. Type letters into the input box to trace how the connection is made.</p>' +
+                '<p class="cta">The Enigma machine encodes characters by completing a circuit through a series of a plugboard, rotors, and a reflector. <strong>Type any message into the input box to trace how the connection is made.</strong></p>' +
+                '<b id="so-scary" class="so-scary">&times;</b>' +
                 '<input id="encrypt" type="text" >' +
+                // '<p id="under-the-hood" class="under-the-hood">INPUT MESSAGE</p>' +
+                '<div class="dave-is-stepping-on-all-the-styles">' +
+                    '<span class="enigma-share"></span>' +
+                    '<p class="output-message">&nbsp;</p>' +
+                '</div>' +
             '</div>' +
             '<div class="plugboard">' +
                 '<div id="plugs"></div>' +
@@ -60,24 +21,23 @@
                 '<ul class="output-register"></ul>' +
             '</div>' +
             '<div class="rotors-container clearfix">' +
-                '<svg id="rotors" width="100%" height="230"></svg>' +
+                '<ul class="directional-copy">' +
+                    '<li class="entry-path-copy"><p>Entry electricity path</p></li>' +
+                    '<li class="return-path-copy"><p>Return electricity path</p></li>' +
+                '</ul>' +
+                '<svg id="rotors" viewBox="0 40 560 200"></svg>' +
             '</div>' +
-            '<div class="output-lightboard lightboard"></div>' +
-            '<div id="encoded-message">' +
-                '<p>Output message</p>' +
-                '<p class="output-message"></div>' +
-            '</div>';
+            '<div class="output-lightboard lightboard"></div>';
 
         this.el.insertAdjacentHTML('beforeend', this.template);
 
         this.rotors = [];
         var rotorContainer = this.el.querySelector('.rotors-container');
         for (var i = 0; i < 3; i++) {
-            var rotor = new Rotor(i, TWC.a.indexOf(TWC.start[i]));
+            var rotor = new Rotor(i, RD.start[i], {x: i * 115 + 225, y: 120});
             this.rotors.push(rotor);
             rotor.render();
-            rotor.el.setAttribute('transform', 'translate(' + (i * 160 + 390) + ',120) rotate(180)');
-            // insert the rotors before the reflector
+            // rotor.el.setAttribute('transform', 'translate(' + (i * 180 + 300) + ',120) rotate(180)');
         }
 
         // rotors keep track of each other so they can trip over like an odometer
@@ -86,116 +46,118 @@
 
         this.plugboard = new Plugboard(this.el.querySelector('.plugboard')).render();
 
-        this.reflector = new Reflector().render();
-        this.reflector.el.setAttribute('transform', 'translate(20, 160)');
+        this.reflector = new Reflector({x: 85, y: 120}).render();
+        // this.reflector.el.setAttribute('transform', 'translate(120, 120)');
         // insehttp://ad-assets.nytimes.com/pi/enigma/rt the reflector immediately after the rotors
 
         this.outputKeys = new Lightboard(this.el.querySelector('.output-lightboard')).render();
         this.outputKeys.el.id = 'output-keys';
 
         var encrypt = document.getElementById('encrypt');
-        encrypt.addEventListener('keydown', this.handleKeyDown.bind(this), false);
-        encrypt.addEventListener('keyup', this.handleKeyUp.bind(this), false);
+        encrypt.addEventListener('keyup', this.handleKeyPress.bind(this), false);
+        encrypt.addEventListener('paste', this.handleKeyPress.bind(this), false);
 
-        this.circuit = new Circuit(document.getElementById('circuits')).render();
+        this.circuit = new Circuit(document.getElementById('circuits'), this.rotors, this.reflector).render();
 
-        TWC.dispatch.on('encoded', this.showLetterz.bind(this));
+        RD.dispatch.on('encoded', this.showLetterz.bind(this));
+        RD.dispatch.on('blank_message', this.eraseCode.bind(this));
+
+        // document.getElementById('under-the-hood').addEventListener('click', this.expand.bind(this));
+        // document.getElementById('so-scary').addEventListener('click', this.collapse.bind(this));
     }
 
     Enigma.prototype = {
-        handleKeyDown: function (e) {
+        handleKeyPress: function (e) {
+            this.encodeMessage(document.getElementById('encrypt').value);
+        },
+        showLetterz: function (e, encodedMessage, sequence) {
+            document.querySelector('.output-message').textContent = encodedMessage.join('');
+        },
+        eraseCode: function () {
+            document.querySelector('.output-message').innerHTML = '&nbsp;';
+        },
+        collapse: function (e) {
+            document.querySelector('.under-the-hood').classList.remove('inactive');
+            this.el.classList.add('collapsed');
+        },
+        expand: function (e) {
+            document.querySelector('.under-the-hood').classList.add('inactive');
+            this.el.classList.remove('collapsed');
+        },
+        encodeMessage: function (message) {
 
-            if (!e.key) e.key = String.fromCharCode(e.keyCode);
+            this.sequence = [];
 
-            // console.log(e);
-            // console.log('this.keyIsDown', this.keyIsDown, e.key);
-
-            var normalFunctions = ["Backspace", "Delete", " ", "Alt", "Control", "Escape", "Shift", "OS"];
-
-            if (normalFunctions.indexOf(e.key) > -1) return true;
-            // 18 Backspace
-            // 48 Delete
-            // 32 " "
-            // 18 Alt
-            // 17 Control
-            // 27 Escape
-            // 16 Shift
-
-            // have to figure out what to do when the user hits backspace
-
-            if (this.keyIsDown && e.key === this.pressedKey) {
-                e.preventDefault();
-                return; // don't do anything if they're holding the key down
+            if (!message) {
+                console.log('message blank');
+                RD.dispatch.trigger('blank_message');
+                return;
             }
-            if (TWC.a.indexOf(e.key.toUpperCase()) > -1) { // between A and Z
-                console.log(e);
-                console.log(e.key.toUpperCase());
-                this.keyIsDown = true;
-                this.pressedKey = e.key;
-                TWC.dispatch.trigger('key_down', e.key.toUpperCase());
 
-                this.moveRotors(1); // move rotors forward one stop
+            // reset the rotors
+            this.rotors.forEach(function (rotor, i) {
+                rotor.offset = RD.start[i];
+            });
 
-                // move rotors
-                // Plugboard
-                // Rotor I (leftmost)
-                // Rotor II (rightmost)
-                // Rotor III
-                // Reflector
-                // Rotor III
-                // Rotor II
-                // Rotor I
-                // plugboard
-                // end result
+            var encodedMessage = message.split('').map(function (inputLetter, i) {
+                console.log('inputLetter', inputLetter);
 
-                this.encode(e.key.toUpperCase());
+                if (inputLetter === ' ') return ' ';
+
+                if (RD.a.indexOf(inputLetter.toUpperCase()) === -1) return null;
+
+                this.rotors[2].offset++;
+
+                return this.encode(RD.a.indexOf(inputLetter.toUpperCase()));
+            }, this).filter(function (letter) {
+                return letter !== null;
+            });
+
+
+            console.log('sequence', this.sequence);
+
+            if (encodedMessage[encodedMessage.length - 1] !== ' ') {
+                console.log('encoded message ready', encodedMessage);
+                RD.dispatch.trigger('encoded', [encodedMessage.map(function (index) { return RD.a[index] || ' '; }), this.sequence]);
             }
+
         },
-        showLetterz: function (e, letter) {
-            document.querySelector('.output-message').textContent += letter;
-        },
-        handleKeyUp: function (e) {
-            this.keyIsDown = false;
-            TWC.dispatch.trigger('key_up');
-        },
-        moveRotors: function (amount) {
-            console.log("MOVING ROTORS");
-            this.rotors[2].offset += amount;
-            // rotor III is the fast rotor
-        },
+
+        // input is a letter, like 'F'
         encode: function (input) {
-            // move rotors
 
-            var plugboardFirstResult = this.plugboard.stecker(input);
-            console.log('plugboardFirstResult', plugboardFirstResult);
-            var fastRotorForward = this.rotors[2].encode(TWC.a.indexOf(plugboardFirstResult), 'forward');
-            console.log('\n');
-            var middleRotorForward = this.rotors[1].encode(fastRotorForward, 'forward');
-            console.log('\n');
-            var slowRotorForward = this.rotors[0].encode(middleRotorForward, 'forward');
-            console.log('\n');
-            var reflected = this.reflector.encode(slowRotorForward);
-            console.log('\n');
-            console.log('reflected', reflected, TWC.a[reflected]);
-            console.log('\n');
-            var slowRotorReverse = this.rotors[0].encode(reflected, 'reverse');
-            console.log('\n');
-            var middleRotorReverse = this.rotors[1].encode(slowRotorReverse, 'reverse');
-            console.log('\n');
-            var fastRotorReverse = this.rotors[2].encode(middleRotorReverse, 'reverse');
-            console.log('\n');
-            var plugboardSecondResult = this.plugboard.stecker(TWC.a[fastRotorReverse]);
+            var step = {
+                fPlugboard: { in: input, out: '' },
+                fFastRotor: { in: '', out: '' },
+                fMiddleRotor: { in: '', out: '' },
+                fSlowRotor: { in: '', out: '' },
+                reflector: { in: '', out: '' },
+                rSlowRotor: { in: '', out: '' },
+                rMiddleRotor: { in: '', out: '' },
+                rFastRotor: { in: '', out: '' },
+                rPlugboard: { in: '', out: '' }
+            };
 
-            console.log('\noutput', plugboardSecondResult);
+            step.fPlugboard.out = step.fFastRotor.in = this.plugboard.stecker(input);
+            step.fFastRotor.out = step.fMiddleRotor.in = this.rotors[2].encode(step.fPlugboard.out, 'forward');
+            step.fMiddleRotor.out = step.fSlowRotor.in = this.rotors[1].encode(step.fFastRotor.out, 'forward');
+            step.fSlowRotor.out = step.reflector.in = this.rotors[0].encode(step.fMiddleRotor.out, 'forward');
+            step.reflector.out = step.rSlowRotor.in = this.reflector.encode(step.fSlowRotor.out);
+            step.rSlowRotor.out = step.rMiddleRotor.in = this.rotors[0].encode(step.reflector.out, 'reverse');
+            step.rMiddleRotor.out = step.rFastRotor.in = this.rotors[1].encode(step.rSlowRotor.out, 'reverse');
+            step.rFastRotor.out = step.rPlugboard.in = this.rotors[2].encode(step.rMiddleRotor.out, 'reverse');
+            step.rPlugboard.out = this.plugboard.stecker(step.rFastRotor.out);
 
-            TWC.dispatch.trigger('encoded', plugboardSecondResult);
+            this.sequence.push(step);
+
+            return step.rPlugboard.out;
         }
     };
 
-    TWC.enigma = new Enigma({
+    RD.enigma = new Enigma({
         el: document.getElementById('enigma')
     });
 
-    document.getElementById('encrypt').focus();
+    console.log('new enigma created');
 
 })();

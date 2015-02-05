@@ -1,15 +1,17 @@
-function Reflector(el) {
-    this.el = el;
+    function Reflector(visualOffset) {
+    this.visualOffset = visualOffset;
     this.wires = "YRUHQSLDPXNGOKMIEBFZCWVJAT".split('');  // Reflector B from wikipedia
 
     this.wiringMap = {};
     this.wiringMapReverse = {};
 
-    TWC.a.forEach(function (letter, i, alphabet) {
+    RD.a.forEach(function (letter, i, alphabet) {
         var iTo = alphabet.indexOf(this.wires[i]);
         this.wiringMap[i] = (26 + iTo - i) % 26;
         this.wiringMapReverse[iTo] = (26 + i - iTo) % 26;
     }, this);
+
+    RD.dispatch.on('encoded', this.showConnection.bind(this));
 }
 
 Reflector.prototype = {
@@ -17,40 +19,49 @@ Reflector.prototype = {
         var svg = document.getElementById('rotors');
 
         this.el = document.createElementNS(ns, 'g');
+        this.el.setAttribute('transform', 'translate(' + this.visualOffset.x + ',' + this.visualOffset.y + ')');
+        this.el.id = 'reflector';
 
         var glyphGroup = document.createElementNS(ns, 'g');
         var lineGroup = document.createElementNS(ns, 'g');
 
         var gap = 11;
 
-        this.contacts = TWC.a.map(function (letter, i) {
+        this.contacts = RD.a.map(function (letter, i, list) {
+            var angle = TAU / list.length * i;
+            var radius = 70;
             var circle = document.createElementNS(ns, 'circle');
-            circle.classList.add('reflector-contact');
-            var x = i * gap;
-            setAttrs(circle, {cx: x, cy: 0, r: 3});
+            var x = Math.cos(angle) * radius;
+            var y = Math.sin(angle) * radius;
+            setAttrs(circle, {cx: 0, cy: 0, r: 8});
+
+            var g = document.createElementNS(ns, 'g');
+            g.classList.add('reflector-contact');
+
 
             var glyph = document.createElementNS(ns, 'text');
+            glyph.classList.add('reflector-glyph');
             glyph.textContent = letter;
-            setAttrs(glyph, {
-                x: x,
-                y: 0,
-                fill: 'black',
-                'text-anchor': 'middle',
-                'font-weight': 'bold',
-                'font-size': 10,
-                dy: 14
-            });
+            setAttrs(glyph, {x: 0, y: 0, dy: 4});
 
-            glyphGroup.appendChild(circle);
-            glyphGroup.appendChild(glyph);
+            g.setAttribute('transform', 'translate(' + x + ',' + y + ') rotate(' + rad2deg(angle + HALF_PI) + ')');
 
-            return circle;
+            g.appendChild(circle);
+            g.appendChild(glyph);
+
+            glyphGroup.appendChild(g);
+
+            g.circle = circle;
+            g.x = x;
+            g.y = y;
+
+            return g;
         });
 
         var placedLetters = [];
 
         // draw lines showing how reflector is wired
-        TWC.a.forEach(function (letter, i, list) {
+        RD.a.forEach(function (letter, i, list) {
 
             if (placedLetters.indexOf(letter) > -1 || placedLetters.indexOf(this.wires.indexOf(letter)) > -1) return true;
 
@@ -58,39 +69,23 @@ Reflector.prototype = {
             var wire = document.createElementNS(ns, 'path');
             wire.id = 'r-' + i;
             wire.classList.add('reflector-wire');
-            var x1 = i * gap;
-            var x2 = reflectedPosition * gap;
-            var y = (placedLetters.length / 2 + 1) * 10;
-            // var d = 'M' + x1 + ',0 L' + x1 + ',' + y + 'L' + x2 + ',' + y + 'L' + x2 + ',0';
 
-            var r = (x2 - x1) / 2;
+            var circleA = this.contacts[i];
+            var circleB = this.contacts[reflectedPosition];
 
-            var d = 'M' + x1 + ' 0 A' + r + ' ' + r + ', 0, 0, 1, ' + x2 + ' 0';
+            var d = 'M' + circleA.x + ' ' + circleA.y  + 'Q 0 0, ' + circleB.x + ' ' + circleB.y;
 
-            var randomGrey = (Math.random() * 0x44) | 0;
-            setAttrs(wire, {
-                d: d,
-                stroke: 'rgb(' + randomGrey + ',' + randomGrey + ',' + randomGrey + ')',
-                fill: 'none',
-                'stroke-width': 2
-            });
-
-            var wireLength = wire.getTotalLength();
-
-            setAttrs(wire, {
-                'stroke-dasharray': wireLength,
-                'stroke-dashoffset': 0
-            });
+            setAttrs(wire, { d: d });
 
             lineGroup.appendChild(wire);
 
-            placedLetters.push(letter, TWC.a[reflectedPosition]);
+            placedLetters.push(letter, RD.a[reflectedPosition]);
 
         }, this);
 
         var rLabel = document.createElementNS(ns, 'text');
-        rLabel.textContent = 'Reflector';
-        setAttrs(rLabel, {fill: 'black', transform: 'translate(130,55)', 'text-anchor': 'middle', 'font-size': 20});
+        rLabel.textContent = 'REFLECTOR';
+        setAttrs(rLabel, {fill: 'black', transform: 'translate(0,95)', 'text-anchor': 'middle', 'font-size': 11});
 
         this.el.appendChild(lineGroup);
         this.el.appendChild(glyphGroup);
@@ -100,11 +95,18 @@ Reflector.prototype = {
 
         return this;
     },
-    showConnection: function (input, output) {
+    getIndexGlobal: function (index) {
+        return {x: this.visualOffset.x + this.contacts[index].x, y: this.visualOffset.y + this.contacts[index].y };
+    },
+    showConnection: function (e, message, sequence) {
+        var lastStep = sequence[sequence.length - 1];
+
+        var input = lastStep.reflector.in;
+        var output = lastStep.reflector.out;
+
         console.log('showConnection');
         this.contacts.forEach(function (c) {
-            c.classList.remove('input');
-            c.classList.remove('output');
+            c.classList.remove('input', 'output');
         });
 
         var oldActiveWire = document.querySelector('.reflector-wire.active');
@@ -118,25 +120,11 @@ Reflector.prototype = {
         wire.removeAttribute('style');
         wire.classList.add('active');
 
-        wireLength = wire.getTotalLength();
-
-        if (enter) {
-            setAttrs(enter, {'stroke-dashoffset': wireLength});
-        } else if (exit) {
-            setAttrs(exit, {'stroke-dashoffset': -wireLength});
-        }
-
         this.contacts[input].classList.add('input');
         this.contacts[output].classList.add('output');
-        setTimeout(function () {
-            wire.setAttribute('style', 'transition: stroke-dashoffset .3s linear');
-            setAttrs(wire, {'stroke-dashoffset': 0});
-        }, 0);
-
     },
     encode: function (input) {
         var reflectedPosition = (input + this.wiringMap[input]) % 26;
-        this.showConnection(input, reflectedPosition);
         return reflectedPosition;
     }
 };

@@ -1,12 +1,44 @@
-body {margin: 0; padding: 0;}
-* {box-sizing: border-box; font-family: 'Courier New';}
+
+/* Enigma Under the Hood */
 
 .container {
-  width: 800px;
   margin: 0 auto;
+  width: 50%;
 }
 
-/* throw away styles above this line */
+#enigma {
+  background-size: cover;
+  overflow: hidden;
+  position: relative;
+  border-top: 1px solid #ccc;
+  border-bottom: 1px solid #ccc;
+  padding-top: 15px;
+  padding-bottom: 30px !important;
+  margin-top: 6px;
+}
+
+
+#enigma.collapsed {
+  height: 150px;
+}
+
+#enigma * {
+  font-family: 'source-sans-pro', sans-serif;
+}
+
+.under-the-hood {
+  display: inline-block;
+  margin-left: 20px;
+  /*color: #f1a126;*/
+  font-size: 12px;
+  color: black;
+  padding: 0 !important;
+  margin-bottom: 0;
+}
+
+.under-the-hood.inactive {
+  display: none;
+}
 
 .clearfix:before,
 .clearfix:after {
@@ -32,15 +64,19 @@ body {margin: 0; padding: 0;}
 }
 
 .plugboard {
-  margin-top: 15px;
   position: relative;
+  background: #e3c993;
+  padding: 1px 0;
 }
 
 #plugs {
   width: 100%;
-  height: 100%;
+  height: 88%;
   position: absolute;
-  z-index: -1
+  padding: 3px;
+  opacity: .15;
+  padding-top: 9px;
+
 }
 
 .plug {
@@ -61,22 +97,18 @@ body {margin: 0; padding: 0;}
 }
 
 .plugboard ul {
-  margin: 0;
+  margin: 3px;
   padding: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .plugboard-label {
   text-transform: uppercase;
   text-align: center;
   margin: 0;
-  padding: 10px 0;
-  color: #f1a126;
-}
-
-.plugboard-label strong {
-  background: rgba(0, 0, 0, .4);
-  padding: 5px 10px;
-  border-radius: 15px;
+  padding: 5px 0;
+  color: black;
 }
 
 .plugboard-letter {
@@ -87,30 +119,50 @@ body {margin: 0; padding: 0;}
 
 .plugboard-letter span {
   display: block;
-  width: 25px;
-  height: 25px;
-  border-radius: 12.5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
   font-weight: bold;
-  line-height: 25px;
+  line-height: 20px;
   margin: 0 auto;
   color: white;
-  background: #283546;
+  background: #555041;
   border: 1px solid #aaa;
+  font-size: 11px;
 }
 
-.plugboard-letter.active span {
-  background: #d19d59;
+#rotors {
+  pointer-events: none;
 }
 
 .rotors-container {
+  padding-bottom: 0 !important;
+}
 
+#enigma.collapsed #rotors {
+  transform: translate(0, -146px);
+  -webkit-transform: translate(0, -146px);
+  -ms-transform: translate(0, -146px);
+  opacity: .3;
 }
 
 .rotor-letters {
   /*border: 1px solid black;*/
+  -webkit-transition: -webkit-transform .15s;
+  -moz-transition: -moz-transform .15s;
+  -ms-transition: -ms-transform .15s;
   transition: transform .15s;
+
   transform-origin: 0px 0px;
+  -webkit-transform-origin: 0px 0px;
+  -moz-transform-origin: 0px 0px;
+  -ms-transform-origin: 0px 0px;
+
+  -webkit-transform: translate(80px, 80px) rotate(0deg);
+  -moz-transform: translate(80px, 80px) rotate(0deg);
+  -ms-transform: translate(80px, 80px) rotate(0deg);
   transform: translate(80px, 80px) rotate(0deg);
+
 }
 
 .rotor-position {
@@ -124,6 +176,12 @@ body {margin: 0; padding: 0;}
   background: navy;
   margin: -8px; /* this is the important line. must be half of width and height */
   padding-top: 2px;
+}
+
+.starting-glyph {
+  fill: #aaa;
+  text-anchor: middle;
+  font-size: 50px;
 }
 
 .lightboard {
@@ -141,7 +199,7 @@ body {margin: 0; padding: 0;}
 
 .lightboard-letter span {
   /*background: #221c0f;*/
-  background: #283546;
+  background: #555041;
   position: relative;
   width: 40px;
   height: 40px;
@@ -150,31 +208,35 @@ body {margin: 0; padding: 0;}
   display: block;
   border-radius: 20px;
   font-size: 26px;
+  font-weight: bold;
   border: 1px solid #332836;
-  -webkit-box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
-  -moz-box-shadow: inset 0px 3  px 5px 0px rgba(0,0,0,0.4);
-  box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.4);
+  -webkit-box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.2);
+  -moz-box-shadow: inset 0px 3  px 5px 0px rgba(0,0,0,0.2);
+  box-shadow: inset 0px 3px 5px 0px rgba(0,0,0,0.2);
+  -webkit-transition: background-color .3s;
+  -moz-transform: background-color .3s;
+  -ms-transform: background-color .3s;
+  transform: background-color .3s;
 }
 
 .lightboard-letter span:before {
   content: " ";
   position: absolute;
-  z-index: -1;
   top: -3px;
   left: -3px;
   right: -3px;
   bottom: -3px;
   border-radius: 21px;
   box-sizing: content-box;
-  border: 5px solid #fff8f6;
-  -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.4);
-  -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.4);
-  box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.4);
+  border: 2px solid #fff8f6;
+  -webkit-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+  -moz-box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 3px 5px 0px rgba(0,0,0,0.2);
 }
 
 .lightboard-letter.active span {
-  background: #363d4d;
-  transform: translateY(2px);
+  background: #f1a126;
+  color: black;
 }
 
 .lightboard-label {
@@ -185,21 +247,26 @@ body {margin: 0; padding: 0;}
 #circuits {
   z-index: -1;
   position: absolute;
-  background: #000 url(../img/Plastic0008_L.jpg) no-repeat;
-  background-size: contain;
 }
 
 .encrypt-module {
-  background: #22231d;
+  background: white;
+  padding: 0 !important;
 }
 
-.encrypt-module p {
-  color: #f1a126;
+#enigma .cta {
+  font-size: 12.9px;
+  color: #666;
+  line-height: 1.4em;
+  margin: 0 !important;
+  padding: 20px 0 20px 0 !important;
 }
 
 #encrypt {
-  font-size: 20px;
+  font-size: 14px;
   padding: 4px;
+  width: 50%;
+  margin-left: 25%;
 }
 
 #encoded-message {
@@ -207,54 +274,244 @@ body {margin: 0; padding: 0;}
 }
 
 .output-message {
+  text-align: center;
+  margin-top: 10px;
   font-size: 20px;
+  margin-bottom: 2px;
+  position: relative;
+  z-index: 20;
+  background: black;
+  /*color: #f1a126;*/
+  color: white;
+  padding: 10px !important;
+  position: relative;
+  z-index: 0;
 }
 
 /* some SVG classes */
 .line-group, .glyph-group {
+  -webkit-transition: -webkit-transform .15s;
+  -moz-transition: -moz-transform .15s;
+  -ms-transition: -ms-transform .15s;
   transition: transform .15s;
 }
 
-circle.rotor-letter-bkd {
-  fill: #231b0f;
+.rotor-position.inForward circle {
+  /*fill: #614427;*/
+  fill: white;
+  stroke: black;
 }
 
-circle.rotor-letter-bkd.inForward {
-  fill: orangered;
+.rotor-position.outForward circle {
+  /*fill: #372f23;*/
+  fill: white;
+  stroke: black;
 }
 
-circle.rotor-letter-bkd.outForward {
-  fill: darkred;
-}
-
-circle.rotor-letter-bkd.inReverse {
-  fill: yellowgreen;
-}
-
-circle.rotor-letter-bkd.outReverse {
-  fill: forestgreen;
-}
-
-.reflector-wire {
-  /*transition: stroke-dashoffset 2s;*/
-  stroke: 'black';
-}
-
-.reflector-wire.active {
-  stroke: orangered;
-}
-
-.reflector-contact {
-  fill: #f1a126;
+.rotor-position.inReverse circle {
+  /*fill: #9f936b;*/
+  fill: black;
   stroke: white;
 }
 
-.reflector-contact.input {
-  stroke: orangered;
-  fill: orangered;
+.rotor-position.outReverse circle {
+  /*fill: #555041;*/
+  fill: black;
+  stroke: white;
 }
 
-.reflector-contact.output {
-  stroke: darkred;
-  fill: darkred;
+.rotor-position.inForward text,
+.rotor-position.outForward text {
+  fill: black;
+}
+
+.rotor-position.inReverse text,
+.rotor-position.outReverse text {
+  fill: white;
+}
+
+.forward-wire {
+  stroke: black;
+  stroke-width: 2;
+  fill: none;
+}
+
+.reverse-wire {
+  stroke: black;
+  stroke-dasharray: 3px;
+  stroke-width: 2;
+  fill: none;
+}
+
+.reflector-glyph {
+  fill: black;
+  text-anchor: middle;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.reflector-wire {
+  stroke: #aaa;
+  fill: none;
+  stroke-width: 2;
+}
+
+.reflector-wire.active {
+  stroke: black;
+  stroke-dasharray: 3px;
+}
+
+.reflector-contact circle, circle.rotor-letter-bkd {
+  fill: #f1a126;
+}
+
+.reflector-contact.input circle {
+  stroke: black;
+  fill: white;
+}
+
+.reflector-contact.output circle {
+  stroke: white;
+  fill: black;
+}
+
+.reflector-contact.input text {
+  fill: black;
+}
+
+.reflector-contact.output text {
+  fill: white;
+}
+
+.rotor-contact {
+  fill: black;
+  text-anchor: middle;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.output-lightboard {
+  position: relative;
+}
+
+.so-scary {
+  position: absolute;
+  top: 0px;
+  color: white;
+  right: 10px;
+  font-size: 30px !important;
+  opacity: .4;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.so-scary:hover {
+  opacity: 1;
+}
+
+.circuits-input-letter circle {
+  fill: white;
+  stroke: black;
+}
+
+.circuits-output-letter circle {
+  fill: black;
+}
+
+.input-letter, .output-letter {
+  text-anchor: middle;
+  fill: white;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.input-letter {
+  fill: black;
+}
+
+.circuits-input-label, .circuits-output-label {
+  text-anchor: middle;
+  fill: #333;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+#IIIf polygon, #IIf polygon, #If polygon, #Rf polygon {
+  fill: white;
+  stroke: black;
+}
+
+#IIIr polygon, #IIr polygon, #Ir polygon, #Rr polygon {
+  fill: black;
+  stroke: none;
+}
+
+.trip-glyph {
+  fill: black;
+  stroke: none;
+  text-anchor: middle;
+  font-size: 12px;
+}
+
+#IIIr text, #IIr text, #Ir text, #Rr text {
+  fill: white;
+}
+
+#entryLabel, #returnLabel {
+  fill: white;
+}
+
+.directional-copy {
+  margin: 0;
+  padding: 0;
+  margin-left: 3%;
+}
+
+.directional-copy li {
+  width: 46%;
+  display: inline-block;
+  color: black;
+  position: relative;
+}
+
+.directional-copy li p {
+  margin: 5px;
+  border-radius: 3px;
+  padding: 2px 8px;
+}
+
+.directional-copy li p:after {
+  content: ' ';
+  position: absolute;
+  border: 8px solid transparent;
+  top: 12px;
+}
+
+.entry-path-copy p {
+  border: 1px solid black;
+}
+
+.entry-path-copy p:after {
+  left: -14px;
+  border-right-color: black !important;
+}
+
+.return-path-copy p {
+  border: 1px dashed black;
+  text-align: right;
+}
+
+.return-path-copy p:after {
+  right: -14px;
+  border-left-color: black !important;
+}
+
+.twitter-sharetool .icon {
+  background-image: url('http://graphics8.nytimes.com/ads/paidpost/common/images/twitter.png');
+  width: 16px;
+  height: 16px;
+}
+
+.dave-is-stepping-on-all-the-styles {
+  padding-bottom: 0 !important;
 }
